@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cod-opoly</title>
+    <link rel="stylesheet" href="style.css">
+    <script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+    <script src="app.js"></script>
+</head>
+<body>
+    <div id="game-board">
+        <div class="game-board-segment" id="gb-top">
+            <div class="corner-seg" id="21">FREE PARKING</div>
+            <div class="reg-seg property" id="22">
+                <div class="color-bar"></div>
+                <div class="property-name"></div>
+                <div class="property-cost"></div>
+            </div>
+            <div class="reg-seg" id="23"></div>
+            <div class="reg-seg property" id="24">
+                <div class="color-bar"></div>
+                <div class="property-name"></div>
+                <div class="property-cost"></div>
+            </div>
+            <div class="reg-seg property" id="25">
+                <div class="color-bar"></div>
+                <div class="property-name"></div>
+                <div class="property-cost"></div>
+            </div>
+            <div class="reg-seg utility" id="26">
+                <div class="utility-bar"></div>
+                <div class="property-name"></div>
+                <div class="property-cost"></div>
+            </div>
+            <div class="reg-seg property" id="27">
+                <div class="color-bar"></div>
+                <div class="property-name"></div>
+                <div class="property-cost"></div>
+            </div>
+            <div class="reg-seg property" id="28">
+                <div class="color-bar"></div>
+                <div class="property-name"></div>
+                <div class="property-cost"></div>
+            </div>
+            <div class="reg-seg utility" id="29">
+                <div class="utility-bar"></div>
+                <div class="property-name"></div>
+                <div class="property-cost"></div>
+            </div>
+            <div class="reg-seg property" id="30">
+                <div class="color-bar"></div>
+                <div class="property-name"></div>
+                <div class="property-cost"></div>
+            </div>
+            <div class="corner-seg" id="31">GO TO JAIL</div>
+        </div>
+        <div class="game-board-segment" id="gb-middle">
+            <div class="gb-side-panel" id="right-panel">
+                <div class="reg-seg property" id="32">
+                    <div class="color-bar"></div>
+                    <div class="property-name"></div>
+                    <div class="property-cost"></div>
+                </div>
+                <div class="reg-seg property" id="33">
+                    <div class="color-bar"></div>
+                    <div class="property-name"></div>
+                    <div class="property-cost"></div>
+                </div>
+                <div class="reg-seg" id="34"></div>
+                <div class="reg-seg property" id="35">
+                    <div class="color-bar"></div>
+                    <div class="property-name"></div>
+                    <div class="property-cost"></div>
+                </div>
+                <div class="reg-seg utility" id="36">
+                    <div class="utility-bar"></div>
+                    <div class="property-name"></div>
+                    <div class="property-cost"></div>
+                </div>
+                <div class="reg-seg" id="37"></div>
+                <div class="reg-seg property" id="38">
+                    <div class="color-bar"></div>
+                    <div class="property-name"></div>
+                    <div class="property-cost"></div>
+                </div>
+                <div class="reg-seg" id="39"></div>
+                <div class="reg-seg property" id="40">
+                    <div class="color-bar"></div>
+                    <div class="property-name"></div>
+                    <div class="property-cost"></div>
+                </div>
+            </div>
+            <div id="center"></div>
+            <div class="gb-side-panel" id="left-panel">
+                <div class="reg-seg property" id="20">
+                    <div class="color-bar"></div>
+                    <div class="property-name"></div>
+                    <div class="property-cost"></div>
+                </div>
+                <div class="reg-seg property" id="19">
+                    <div class="color-bar"></div>
+                    <div class="property-name"></div>
+                    <div class="property-cost"></div>
+                </div>
+                <div class="reg-seg" id="18"></div>
+                <div class="reg-seg property" id="17">
+                    <div class="color-bar"></div>
+                    <div class="property-name"></div>
+                    <div class="property-cost"></div>
+                </div>
+                <div class="reg-seg utility" id="16">
+                    <div class="utility-bar"></div>
+                    <div class="property-name"></div>
+                    <div class="property-cost"></div>
+                </div>
+                <div class="reg-seg property" id="15">
+                    <div class="color-bar"></div>
+                    <div class="property-name"></div>
+                    <div class="property-cost"></div>
+                </div>
+                <div class="reg-seg property" id="14">
+                    <div class="color-bar"></div>
+                    <div class="property-name"></div>
+                    <div class="property-cost"></div>
+                </div>
+                <div class="reg-seg utility" id="13">
+                    <div class="utility-bar"></div>
+                    <div class="property-name"></div>
+                    <div class="property-cost"></div>
+                </div>
+                <div class="reg-seg property" id="12">
+                    <div class="color-bar"></div>
+                    <div class="property-name"></div>
+                    <div class="property-cost"></div>
+                </div>
+            </div>
+        </div>
+        <div class="game-board-segment" id="gb-bottom">
+            <div class="corner-seg" id="11">
+                <div>
+                    <div>Just</div>
+                    <div id="jail-img"></div>
+                </div>
+                <div>Visiting</div>
+            </div>
+            <div class="reg-seg property" id="10">
+                <div class="color-bar"></div>
+                <div class="property-name"></div>
+                <div class="property-cost"></div>
+            </div>
+            <div class="reg-seg property" id="9">
+                <div class="color-bar"></div>
+                <div class="property-name"></div>
+                <div class="property-cost"></div>
+            </div>
+            <div class="reg-seg" id="8"></div>
+            <div class="reg-seg property" id="7">
+                <div class="color-bar"></div>
+                <div class="property-name"></div>
+                <div class="property-cost"></div>
+            </div>
+            <div class="reg-seg utility" id="6">
+                <div class="utility-bar"></div>
+                <div class="property-name"></div>
+                <div class="property-cost"></div>
+            </div>
+            <div class="reg-seg" id="5"></div>
+            <div class="reg-seg property" id="4">
+                <div class="color-bar"></div>
+                <div class="property-name"></div>
+                <div class="property-cost"></div>
+            </div>
+            <div class="reg-seg" id="3"></div>
+            <div class="reg-seg property" id="2">
+                <div class="color-bar"></div>
+                <div class="property-name"></div>
+                <div class="property-cost"></div>
+            </div>
+            <div class="corner-seg" id="1">
+                COLLECT
+                $200 SALARY
+                AS YOU PASS
+                <span id="go">GO</span>
+            </div>
+        </div>
+    </div>    
+</body>
+</html>
