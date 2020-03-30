@@ -1,13 +1,14 @@
 * {
     border: 1px solid teal;
     box-sizing: border-box;
+    font-size: small;
 }
 
 #game-board {
     display: flex;
     flex-direction: column;
-    height: 800px;
-    width: 800px;
+    height: 100vh;
+    width: 100vh;
 }
 
 #gb-top, #gb-bottom  {
@@ -37,17 +38,24 @@
     display: flex;
 }
 
+#center {
+    width: 72%;
+}
+
+.gb-side-panel > .reg-seg {
+    height: 100%;
+    display: flex;
+}
+
 #left-panel > .reg-seg {
     flex-direction: row;
 }
 
 #right-panel > .reg-seg {
     flex-direction: row-reverse;
+    
 }
 
-#center {
-    width: 72%;
-}
 
 .gb-side-panel {
     display: flex;
@@ -55,8 +63,158 @@
     width: 14%;
 }
 
-.gb-side-panel > .reg-seg {
-    height: 100%;
-    display: flex;
-    flex-direction: row-reverse;
+
+#gb-top .color-bar, #gb-bottom .color-bar, #gb-top .utility-bar, #gb-bottom .utility-bar, #gb-top .property-cost, #gb-bottom .property-cost {
+    height: 12%;
 }
+
+#gb-middle .color-bar, #gb-middle .utility-bar, #gb-middle .property-cost {
+    width: 12%;
+}
+
+.property-name {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: xx-small;
+    overflow-wrap: normal;
+}
+
+#gb-top .property-name {
+    transform: rotate(180deg);
+}
+
+#gb-middle .property-name {
+    height: 25%;
+    width: 11%;
+    justify-self: center;
+    align-self: center;
+}
+
+#right-panel .property-name {
+    transform: rotate(90deg);
+}
+
+#left-panel .property-name {
+    transform: rotate(270deg);
+}
+
+#gb-bottom .prop-sym {
+    margin-bottom: 18%;
+}
+
+#gb-top .prop-sym {
+    margin-top: 18%;
+}
+
+#right-panel .prop-sym {
+    margin-left: 10%;
+}
+
+#left-panel .prop-sym {
+    margin-right: 10%;
+}
+
+#gb-middle .prop-sym {
+    width: 45%;
+}
+
+#gb-middle .utility .prop-sym {
+    width: 57%;
+}
+
+#gb-top .prop-sym, #gb-bottom .prop-sym {
+    height: 45%;
+}
+
+#gb-bottom .utility .prop-sym, #gb-top .utility .prop-sym {
+    height: 57%;
+}
+
+#center {
+    display: flex;
+    flex-direction: column;
+    padding: 2%;
+}
+
+.player-container {
+    display: flex;
+    height: 66.6%;
+    margin: .5 .5% .5% 0;
+}
+
+#game-card-cont {
+    height: 33.3%;
+    
+}
+
+.player-item {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 2%;
+}
+
+.player-identity {
+    height: 35%;
+    display: flex;
+}
+
+.player-id-icon {
+    width: 45%;
+}
+
+.player-id-name {
+    width: 55%;
+}
+
+.player-money {
+    height: 15%;
+}
+
+.player-prop {
+    height: 50%;
+    display: flex;
+    flex-direction: column;
+    padding: 2%;
+}
+
+.player-prop-item {
+    width: 100%;
+    padding: 1%;
+}
+
+.title-cont {
+    display: flex;
+    align-items: center;
+}
+
+.prop-box {
+    height: 100%;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 1%;
+}
+
+.prop-row {
+    height: 20%;
+    margin-bottom: .5%;
+    display: flex;
+    padding: 1%;
+}
+
+.prop-row-color {
+    height: 80%;
+    width: 20%;
+    align-self: center;
+    background-color: blue;
+    margin-right: 1%;
+}
+
+.prop-row-name {
+    height: 100%;
+    width: 100%;
+}
+

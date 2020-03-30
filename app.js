@@ -1,0 +1,9 @@
+
+
+
+
+
+$(() => {
+    $('.property-name').html('PROPERTY');
+    $('')
+})
