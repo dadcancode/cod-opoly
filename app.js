@@ -11,7 +11,7 @@ class Player {
 }
 
 class GameTile {
-    constructor(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize) {
+    constructor(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize, familyColor, propImage = none) {
         this.type = type;
         this.position = position;
         this.name = name;
@@ -27,6 +27,8 @@ class GameTile {
         this.familyId = familyId;
         this.familySize = familySize;
         this.isPurchased = false;
+        this.familyColor = familyColor;
+        this.propImage = propImage;
     }
 }
 
@@ -104,11 +106,15 @@ class Game {
     startGame() {
         this.updatePlayers();
     }
-    generateGameTiles(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize) {
-        let newTile = new GameTile(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize);
+    generateGameTiles(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize, familyColor, propImage) {
+        let newTile = new GameTile(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize, familyColor, propImage);
         this.gameTiles.push(newTile);
     }
-
+    updateBoard() {
+        for(let i = 1; i < 5; i++) {
+            $(`#${i + 1} .property-name`).text(this.gameTiles[i].name);
+        }
+    }
 //Player select modal
     resetPlayerSelect() {
         $('#player-select-name').val('');
@@ -153,9 +159,14 @@ $(() => {
 //go tile
     currentGame.generateSymbols('corner', 0, 'go', 0, 0, 0, 0, 0, 0, 0, 0, 0);
 //Lisp
-    currentGame.generateSymbols('property', 1, 'Lisp', 60, 2, 50, 50, 250, [10, 30, 90, 160], 1, 1, 2);
+    currentGame.generateSymbols('property', 1, 'Lisp', 60, 2, 50, 50, 250, [10, 30, 90, 160], 1, 1, 2, 'gold', 'none');
+//Community Chest 1
+    currentGame.generateSymbols(currentGame.generateSymbols('event', 2, 'Community Chest'));
 //Perl
-    currentGame.generateSymbols(currentGame.generateSymbols('event', 2, name, cost, rent, funcCost, appCost, rentWApp, rent familyNum, familyId, familySize);)
+    currentGame.generateSymbols('property', 3, 'Perl', 60, 4, 50, 50, [20, 60, 90, 180], 1, 2, 2, 'gold', 'none');
+
+    currentGame.updateBoard();
+
     $('#start-modal').css('display', 'block');
     $('#start-btn').on('click', () => {
         let $numOfHumans = $('#numOfPlayers').val();
