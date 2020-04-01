@@ -45,21 +45,23 @@ class Game {
         this.players.push(newPlayer);
     }
     generateComputer() {
-        for(let i = 1; i <= this.players.length - 4; i++) {
-            let $compSym = $('.color-sym unslected').eq(0).text();
-            let $compCol = $('.color-sym unselected').eq(0).css('background-color');
+        for(let i = 1; i < 5 - this.numOfHumans; i++) {
+            let $compSym = $('.unselected').eq(0).text();
+            let $compCol = $('.unselected').eq(0).css('background-color');
             let $compNum = this.players.length + 1;
             let $compName = `CPlayer ${$compNum}`;
             let newComputer = new Player($compNum, $compName, $compSym, $compCol);
+            $('.unselected').eq(0).removeClass('unselected').addClass('selected');
             this.players.push(newComputer);
         }
     }
     resetPlayerSelect() {
-        $('#player-select-name').empty();
+        $('#player-select-name').val('');
         $('#player-select-number').text(`Player ${this.players.length + 1}`);
     }
     updatePlayers() {
-        for(let i = 0; i < this.players.length; i++) {
+        for(let i = 0; i < 4; i++) {
+            // console.log(this.players[i].sym);
             $('.player-icon-cont').eq(i).text(this.players[i].sym).css('background-color', this.players[i].color);
             $('.player-id-name span').eq(i).text(this.players[i].name);
             $('.player-money span').eq(i).text(this.players[i].bank);
@@ -92,7 +94,7 @@ $(() => {
         } else if(currentGame.players.length === 4) {
             $('#player-select').css('display', 'none');
             currentGame.startGame();
-        }{
+        } else {
             $('#player-select').css('display', 'none');
             currentGame.generateComputer();
             currentGame.startGame();
