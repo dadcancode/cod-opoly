@@ -27,6 +27,7 @@ class GameTile {
         this.familyNum = familyNum;
         this.familyId = familyId;
         this.familySize = familySize;
+        this.isPurchased = false;
     }
 }
 
