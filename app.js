@@ -11,7 +11,7 @@ class Player {
 }
 
 class GameTile {
-    constructor(type, position, name, cost, rent, funcCost, appCost, rentWApp, familyNum, familyId, familySize) {
+    constructor(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize) {
         this.type = type;
         this.position = position;
         this.name = name;
@@ -20,7 +20,7 @@ class GameTile {
         this.appWritten = 0;
         this.rent = rent;
         this.funcCost = funcCost;
-        this.rentWFunc = [];
+        this.rentWFunc = rentWFunc;
         this.appCost = appCost;
         this.rentWApp = rentWApp;
         this.familyNum = familyNum;
@@ -32,7 +32,7 @@ class GameTile {
 
 class Game {
     constructor(numOfHumans = 1) {
-        this.properties = [];
+        this.gameTiles = [];
         this.players = [];
         this.syms = [
             {
@@ -62,6 +62,7 @@ class Game {
         ]
         this.numOfHumans = numOfHumans;
     }
+//Game Setup
     generateHuman(event) {
         for(let i = 0; i < this.syms.length; i++) {
             if(this.syms[i].symbol === $(event.currentTarget).text()) {
@@ -89,6 +90,26 @@ class Game {
             }
         }
     }
+    updatePlayers() {
+        for(let i = 0; i < 4; i++) {
+            // console.log(this.players[i].sym);
+            $('.player-icon-cont').eq(i).text(this.players[i].sym.symbol).css({
+                'background-color' : this.players[i].sym.backgroundColor,
+                'color' : this.players[i].sym.color
+            });
+            $('.player-id-name span').eq(i).text(this.players[i].name);
+            $('.player-money span').eq(i).text(this.players[i].bank);
+        }
+    }
+    startGame() {
+        this.updatePlayers();
+    }
+    generateGameTiles(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize) {
+        let newTile = new GameTile(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize);
+        this.gameTiles.push(newTile);
+    }
+
+//Player select modal
     resetPlayerSelect() {
         $('#player-select-name').val('');
         $('#player-select-number').text(`Player ${this.players.length + 1}`);
@@ -120,21 +141,7 @@ class Game {
                 $('#color-sym-select').append($symDiv);
             }
         }
-    }
-    updatePlayers() {
-        for(let i = 0; i < 4; i++) {
-            // console.log(this.players[i].sym);
-            $('.player-icon-cont').eq(i).text(this.players[i].sym.symbol).css({
-                'background-color' : this.players[i].sym.backgroundColor,
-                'color' : this.players[i].sym.color
-            });
-            $('.player-id-name span').eq(i).text(this.players[i].name);
-            $('.player-money span').eq(i).text(this.players[i].bank);
-        }
-    }
-    startGame() {
-        this.updatePlayers();
-    }
+    }   
 }
 
 
@@ -142,6 +149,13 @@ class Game {
 
 $(() => {
     const currentGame = new Game();
+//creating game tiles
+//go tile
+    currentGame.generateSymbols('corner', 0, 'go', 0, 0, 0, 0, 0, 0, 0, 0, 0);
+//Lisp
+    currentGame.generateSymbols('property', 1, 'Lisp', 60, 2, 50, 50, 250, [10, 30, 90, 160], 1, 1, 2);
+//Perl
+    currentGame.generateSymbols(currentGame.generateSymbols('event', 2, name, cost, rent, funcCost, appCost, rentWApp, rent familyNum, familyId, familySize);)
     $('#start-modal').css('display', 'block');
     $('#start-btn').on('click', () => {
         let $numOfHumans = $('#numOfPlayers').val();
