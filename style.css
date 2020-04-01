@@ -42,6 +42,32 @@ body {
     font-size: smaller;
 }
 
+#go-text {
+    flex: 1;
+}
+
+#go-token-cont {
+    height: 25%;
+    display: flex;
+}
+
+#gb-bottom .token-cont {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+/* Player Tokens */
+#go-token-cont .player-token {
+    height: 100%;
+    width: 25%;
+}
+
+.token-cont .player-token {
+    height: 50%;
+    width: 50%;
+}
+
 #gb-top > .reg-seg, #gb-bottom > .reg-seg {
     width: 8%;
     display: flex;
@@ -83,11 +109,11 @@ body {
 }
 
 
-#gb-top .color-bar, #gb-bottom .color-bar, #gb-top .utility-bar, #gb-bottom .utility-bar, #gb-top .property-cost, #gb-bottom .property-cost {
+#gb-top .color-bar, #gb-bottom .color-bar, #gb-top .property-cost, #gb-bottom .property-cost {
     height: 12%;
 }
 
-#gb-middle .color-bar, #gb-middle .utility-bar, #gb-middle .property-cost {
+#gb-middle .color-bar, #gb-middle .property-cost {
     width: 12%;
 }
 
@@ -138,15 +164,15 @@ body {
     width: 45%;
 }
 
-#gb-middle .utility .prop-sym {
+#gb-middle .utility .prop-sym, #gb-middle .event .prop-sym {
     width: 57%;
 }
 
 #gb-top .prop-sym, #gb-bottom .prop-sym {
-    height: 45%;
+    height: 40%;
 }
 
-#gb-bottom .utility .prop-sym, #gb-top .utility .prop-sym {
+#gb-bottom .utility .prop-sym, #gb-top .utility .prop-sym, #gb-top .event .prop-sym, #gb-bottom .event .prop-sym {
     height: 57%;
 }
 

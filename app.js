@@ -104,15 +104,20 @@ class Game {
         }
     }
     startGame() {
+        console.log(`number of players : ${this.players.length}`)
         this.updatePlayers();
+        this.generateTokens();
     }
     generateGameTiles(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize, familyColor, propImage) {
         let newTile = new GameTile(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize, familyColor, propImage);
         this.gameTiles.push(newTile);
     }
     updateBoard() {
-        for(let i = 1; i < 5; i++) {
+        for(let i = 1; i < this.gameTiles.length; i++) {
+            console.log(`updating tile ${i}`)
+            console.log(this.gameTiles[i].name)
             $(`#${i + 1} .property-name`).text(this.gameTiles[i].name);
+            $(`#${i + 1} .property-cost`).text(this.gameTiles[i].cost);
         }
     }
 //Player select modal
@@ -147,7 +152,18 @@ class Game {
                 $('#color-sym-select').append($symDiv);
             }
         }
-    }   
+    }
+    /////////////////////////////
+    //Token Movement
+    generateTokens() {
+        for(let i = 0; i < this.players.length; i++) {
+            let $token = $('<div>').addClass('player-token').attr('id', `${i}`).text(this.players[i].sym.symbol).css({
+                'background-color' : this.players[i].sym.backgroundColor,
+                'color' : this.players[i].sym.color
+            });
+            $('#go-token-cont').append($token);
+        }
+    }
 }
 
 
@@ -160,10 +176,15 @@ $(() => {
     currentGame.generateGameTiles('corner', 0, 'go', 0, 0, 0, 0, 0, 0, 0, 0, 0);
 //Lisp
     currentGame.generateGameTiles('property', 1, 'Lisp', 60, 2, 50, 50, 250, [10, 30, 90, 160], 1, 1, 2, 'gold', 'none');
-//Community Chest 1
-    currentGame.generateGameTiles(currentGame.generateSymbols('event', 2, 'Community Chest'));
+//Freelance 1
+    currentGame.generateGameTiles('event', 2, 'Freelance');
+    console.log(currentGame.gameTiles[2].name)
 //Perl
     currentGame.generateGameTiles('property', 3, 'Perl', 60, 4, 50, 50, [20, 60, 90, 180], 1, 2, 2, 'gold', 'none');
+//Income Tax'
+    currentGame.generateGameTiles('event', 4, 'Tax', 200)
+//MDN
+    currentGame.generateGameTiles('property', 5, 'MDN', 200, 25, 0, 0, 0, [25, 50, 100, 200], 0, 1, 4, 'none', 'none')
 
     currentGame.updateBoard();
 
