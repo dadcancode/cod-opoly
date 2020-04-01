@@ -11,7 +11,7 @@ class Player {
 }
 
 class GameTile {
-    constructor(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize, familyColor, propImage = none) {
+    constructor(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize, familyColor, propImage = 'none') {
         this.type = type;
         this.position = position;
         this.name = name;
@@ -157,13 +157,13 @@ $(() => {
     const currentGame = new Game();
 //creating game tiles
 //go tile
-    currentGame.generateSymbols('corner', 0, 'go', 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    currentGame.generateGameTiles('corner', 0, 'go', 0, 0, 0, 0, 0, 0, 0, 0, 0);
 //Lisp
-    currentGame.generateSymbols('property', 1, 'Lisp', 60, 2, 50, 50, 250, [10, 30, 90, 160], 1, 1, 2, 'gold', 'none');
+    currentGame.generateGameTiles('property', 1, 'Lisp', 60, 2, 50, 50, 250, [10, 30, 90, 160], 1, 1, 2, 'gold', 'none');
 //Community Chest 1
-    currentGame.generateSymbols(currentGame.generateSymbols('event', 2, 'Community Chest'));
+    currentGame.generateGameTiles(currentGame.generateSymbols('event', 2, 'Community Chest'));
 //Perl
-    currentGame.generateSymbols('property', 3, 'Perl', 60, 4, 50, 50, [20, 60, 90, 180], 1, 2, 2, 'gold', 'none');
+    currentGame.generateGameTiles('property', 3, 'Perl', 60, 4, 50, 50, [20, 60, 90, 180], 1, 2, 2, 'gold', 'none');
 
     currentGame.updateBoard();
 
