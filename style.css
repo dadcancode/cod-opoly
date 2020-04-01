@@ -196,6 +196,10 @@ body {
 .player-icon-cont {
     height: 100%;
     width: 30%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 4em;
 }
 
 .player-id-name {

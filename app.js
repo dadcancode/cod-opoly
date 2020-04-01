@@ -1,9 +1,8 @@
 class Player {
-    constructor(playerNum, name, sym, color) {
+    constructor(playerNum, name, sym) {
         this.playerNum = playerNum;
         this.name = name;
         this.sym = sym;
-        this.color = color;
         this.properties = [];
         this.bank = 1500;
         this.inJail = false;
@@ -35,35 +34,100 @@ class Game {
     constructor(numOfHumans = 1) {
         this.properties = [];
         this.players = [];
+        this.syms = [
+            {
+                symbol: '{}',
+                isSelected: false,
+                backgroundColor: 'yellow',
+                color: 'darkblue'
+            },
+            {
+                symbol: ';',
+                isSelected: false,
+                backgroundColor: 'red',
+                color: 'green'
+            },
+            {
+                symbol: "#",
+                isSelected: false,
+                backgroundColor: 'blue',
+                color: 'coral'
+            },
+            {
+                symbol: "$",
+                isSelected: false,
+                backgroundColor: 'darkgreen',
+                color: 'orange'
+            }
+        ]
         this.numOfHumans = numOfHumans;
     }
     generateHuman(event) {
-        let $playerSym = $(event.currentTarget).text();
-        let $playerCol = $(event.currentTarget).css('background-color');
-        let $playerNum = this.players.length + 1;
-        let $playerName = $('#player-select-name').val();
-        let newPlayer = new Player($playerNum, $playerName, $playerSym, $playerCol);
-        this.players.push(newPlayer);
+        for(let i = 0; i < this.syms.length; i++) {
+            if(this.syms[i].symbol === $(event.currentTarget).text()) {
+                let $playerSym = this.syms[i];
+                let $playerNum = this.players.length + 1;
+                let $playerName = $('#player-select-name').val();
+                let newPlayer = new Player($playerNum, $playerName, $playerSym);
+                this.players.push(newPlayer);
+                this.syms[i].isSelected = true;
+            }
+        }
     }
     generateComputer() {
-        for(let i = 1; i < 5 - this.numOfHumans; i++) {
-            let $compSym = $('.unselected').eq(0).text();
-            let $compCol = $('.unselected').eq(0).css('background-color');
-            let $compNum = this.players.length + 1;
-            let $compName = `CPlayer ${$compNum}`;
-            let newComputer = new Player($compNum, $compName, $compSym, $compCol);
-            $('.unselected').eq(0).removeClass('unselected').addClass('selected');
-            this.players.push(newComputer);
+        for(let i = 1; i <= 4 - this.numOfHumans; i++) {
+            for(let j = 0; j < this.syms.length; j++) {
+                if(this.syms[j].isSelected === false) {
+                    let $compSym = this.syms[j];
+                    let $compNum = this.players.length + 1;
+                    let $compName = `CPlayer ${$compNum}`;
+                    let newComputer = new Player($compNum, $compName, $compSym);
+                    this.players.push(newComputer);
+                    this.syms[j].isSelected === true;
+                }
+
+            }
         }
     }
     resetPlayerSelect() {
         $('#player-select-name').val('');
         $('#player-select-number').text(`Player ${this.players.length + 1}`);
+        this.generateSymbols();
+
+    }
+    generateSymbols() {
+        $('#color-sym-select').empty();
+        for(let i = 0; i < this.syms.length; i++) {
+            let $symDiv = $('<div>').addClass('color-sym').on('click', (event) => {
+                console.log('clicked');
+                this.generateHuman(event);
+                if(this.players.length < this.numOfHumans) {
+                    this.resetPlayerSelect();
+                } else if(this.players.length === 4) {
+                    $('#player-select').css('display', 'none');
+                    this.startGame();
+                } else {
+                    $('#player-select').css('display', 'none');
+                    this.generateComputer();
+                    this.startGame();
+                }
+            });
+            if(this.syms[i].isSelected === false) {
+                $symDiv.text(this.syms[i].symbol).attr('id', `${i}`);
+                $('#color-sym-select').append($symDiv);
+            } else {
+                $symDiv.text(this.syms[i].symbol).attr('id', `${i}`).css('display', 'none');
+                $('#color-sym-select').append($symDiv);
+            }
+        }
     }
     updatePlayers() {
         for(let i = 0; i < 4; i++) {
             // console.log(this.players[i].sym);
-            $('.player-icon-cont').eq(i).text(this.players[i].sym).css('background-color', this.players[i].color);
+            $('.player-icon-cont').eq(i).text(this.players[i].sym.symbol).css({
+                'background-color' : this.players[i].sym.backgroundColor,
+                'color' : this.players[i].sym.color
+            });
             $('.player-id-name span').eq(i).text(this.players[i].name);
             $('.player-money span').eq(i).text(this.players[i].bank);
         }
@@ -85,22 +149,5 @@ $(() => {
         $('#start-modal').css('display', 'none');
         currentGame.resetPlayerSelect();
         $('#player-select').css('display','block');
-    })
-    $('.unselected').on('click', (event) => {
-        console.log('clicked');
-        currentGame.generateHuman(event);
-        $(event.currentTarget).removeClass('unselected').addClass('selected');
-        if(currentGame.players.length < currentGame.numOfHumans) {
-            currentGame.resetPlayerSelect();
-        } else if(currentGame.players.length === 4) {
-            $('#player-select').css('display', 'none');
-            currentGame.startGame();
-        } else {
-            $('#player-select').css('display', 'none');
-            currentGame.generateComputer();
-            currentGame.startGame();
-        }
-
-
     })
 })
