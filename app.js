@@ -147,14 +147,11 @@ class Game {
                     this.resetPlayerSelect();
                 } else if(this.players.length === 4) {
                     $('#player-select').css('display', 'none');
-                    $('#roll-order').css('display', 'block');
+                    this.determineOrder(this.players);
                 } else {
                     $('#player-select').css('display', 'none');
                     this.generateComputer();
-                    $('#roll-order').css('display', 'block');
-                    setTimeout(() => {
-                        this.determineOrder();
-                    }, 1000);
+                    this.determineOrder(this.players);
                 }
             });
             if(this.syms[i].isSelected === false) {
@@ -167,117 +164,129 @@ class Game {
         }
     }
     //////////////////////
-    //roll for order modal
-    determineOrder() {
+    //roll for order
+    determineOrder(arr) {
+        console.log('determineOrder');
         //roll for each player and push to modal
-        for(let i = 0; i < this.players.length; i++) {
-            let $rollResultCont = $('<div>').addClass('roll-result');
-            let $playerDiv = $('<div>').text(`${this.players[i].name} is rolling. . .`);
-            this.players[i].currRoll = this.rollDice(1);
-            let $rollResult = $('<div>').text(`> ${this.players[i].currRoll}`);
-            $rollResultCont.append($playerDiv);
-            setTimeout(() => {
-                $('#results').append($rollResultCont);
-                setTimeout(() => {
-                    $rollResultCont.append($rollResult);
-                }, 250 * i + 1);
-            }, 1000 * i + 1);
-        }
-        if(this.matchCheck() === true) {
-            this.announceTies();
-            setTimeout(() => {
-                this.reRollMatches();
-            }, 3000);
+        // for(let i = 0; i < this.players.length; i++) {
+        //     let $rollResultCont = $('<div>').addClass('roll-result');
+        //     let $playerDiv = $('<div>').text(`${this.players[i].name} is rolling. . .`);
+        //     this.players[i].currRoll = this.rollDice(1);
+        //     let $rollResult = $('<div>').text(`> ${this.players[i].currRoll}`);
+        //     $rollResultCont.append($playerDiv);
+        //     setTimeout(() => {
+        //         $('#results').append($rollResultCont);
+        //         setTimeout(() => {
+        //             $rollResultCont.append($rollResult);
+        //         }, 250 * i + 1);
+        //     }, 1000 * i + 1);
+        // }
+        // if(this.matchCheck() === true) {
+        //     this.announceTies();
+        //     setTimeout(() => {
+        //         this.reRollMatches();
+        //     }, 3000);
+        // } else {
+        //     this.announce(`${this.getHighestRoller().name} goes first!`)
+        //     $('#announcement').css('display', 'block');
+        //     setTimeout(() => {
+        //         $('#announcement').css('display', 'none');
+        //     }, 1000);
+        //     this.startGame();
+        // }
+        let rollers = this.getRollers(arr)
+        console.log(rollers[0].name);
+        console.log(rollers[1].name);
+        console.log(rollers[2].name);
+        this.rollPlayers(rollers);
+        console.log(rollers[0].currRoll);
+        console.log(rollers[1].currRoll);
+        console.log(rollers[2].currRoll);
+        if(this.matchCheck(rollers) === true) {
+            // this.reRoll(rollers);
         } else {
-            this.announce(`${this.getHighestRoller().name} goes first!`)
+            this.announce(`${this.getHighestRoller(rollers).name} goes first`)
             $('#announcement').css('display', 'block');
             setTimeout(() => {
                 $('#announcement').css('display', 'none');
-            }, 1000);
-            this.startGame();
+            }, 2300)
+            setTimeout(() => {
+                this.startGame();
+            }, 2700);
+        }
+
+    }
+    consoleValue(arr, val) {
+        for(let i = 0; i < arr.length; i++) {
+            console.log(`value ${val} of ${arr} IND ${i} : ${arr[i][val]}`);
         }
     }
-    announceTies() {
-        let matchedPlayersStr = `Players `;
-            for(let i = 0; i < this.getMatches().length; i++) {
-                if(i < this.getMatches().length - 1) {
-                    matchedPlayersStr += `${this.players[this.getMatches()[i]].name}, `
-                } else {
-                    matchedPlayersStr += `${this.players[this.getMatches()[i]].name}`
-                }
-            }
-            matchedPlayersStr += ` have tied. They must re-roll`;
-            this.announce(matchedPlayersStr);
-            setTimeout(() => {
-                $('#announcement').css('display', 'block');
-            }, 1500);
-            setTimeout(() => {
-                $('#announcement').css('display', 'none');
-            }, 2500);
+    getRollers(arr) {
+        let rollers = [];
+        for(let i = 0; i < arr.length; i++) {
+            rollers.push(arr[i]);
+        }
+        return rollers;
     }
-    reRollMatches() {
-        $('#results').empty();
-        let matchArr = this.getMatches()
-        this.clearRolls();
-        for(let i = 0; i < matchArr.length; i++) {
-            let $rollResultCont = $('<div>').addClass('roll-result');
-            let $playerDiv = $('<div>').text(`${this.players[matchArr[i]].name} is rolling. . .`);
-            this.players[matchArr[i]].currRoll = this.rollDice(1);
-            let $rollResult = $('<div>').text(`> ${this.players[matchArr[i]].currRoll}`);
-            $rollResultCont.append($playerDiv);
-            setTimeout(() => {
-                $('#results').append($rollResultCont);
-                setTimeout(() => {
-                    $rollResultCont.append($rollResult);
-                }, 250 * i + 1);
-            }, 1000 * i + 1);
-        };
-        if(this.matchCheck() === true) {
-            this.announceTies();
-            this.reRollMatches();
+    rollPlayers(arr) {
+        console.log('rollPlayers');
+        for(let i = 0; i < arr.length; i++) {
+            console.log(`rollPlayers loop ${i}`)
+            arr[i].currRoll = this.rollDice(1);
+            console.log(`${arr[i].name} roll is now ${arr[i].currRoll}`);
+        }
+    }
+    reRoll(arr) {
+        console.log('reroll');
+        let newRollers = this.getMatches(arr);
+        this.consoleValue(newRollers, 'name');
+        this.rollPlayers(newRollers);
+        this.consoleValue(newRollers, 'currRoll')
+        if(this.matchCheck(newRollers) === true) {
+            this.reRoll(newRollers);
         } else {
-            this.announce(`${this.getHighestRoller().name} goes first!`)
+            this.announce(`${this.getHighestRoller(newRollers).name} goes first`)
             $('#announcement').css('display', 'block');
             setTimeout(() => {
                 $('#announcement').css('display', 'none');
-            });
-            this.startGame();
+            }, 2300)
+            setTimeout(() => {
+                this.startGame();
+            }, 2700);
         }
     }
         //determine highest roller
-    getHighestRoller() {
-        let highestRoller = this.players[0];
-        console.log(`highest roll to start ${highestRoller.currRoll}`)
-        for(let i = 1; i < this.players.length; i++) {
-            if(this.players[i].currRoll > highestRoller.currRoll) {
+    getHighestRoller(arr) {
+        let highestRoller = arr[0];
+        for(let i = 1; i < arr.length; i++) {
+            if(arr[i].currRoll > highestRoller.currRoll) {
                 console.log(`roll to compare to highest ${this.players[i].currRoll}`)
-                highestRoller = this.players[i];
+                highestRoller = arr[i];
             }
         }
         return highestRoller;
     }
         //check for matches
-    getRolls() {
-        let rollArr = [];
-        for(let i = 0; i < this.players.length; i++) {
-            rollArr.push(this.players[i].currRoll);
+    getRolls(arr) {
+        let rollerArr = [];
+        for(let i = 0; i < arr.length; i++) {
+            rollerArr.push(arr[i].currRoll);
         }
-        return rollArr;
+        return rollerArr;
     }
-    getMatches() {
-        let rollArr = this.getRolls();
-        let highestRoller = this.getHighestRoller();
+    getMatches(arr) {
+        let highestRoller = this.getHighestRoller(arr);
         let matchArr = [];
-        for(let i = 0; i < rollArr.length; i++) {
-            if(rollArr[i] === highestRoller.currRoll) {
-                matchArr.push(i);
+        for(let i = 0; i < arr.length; i++) {
+            if(arr[i].currRoll === highestRoller.currRoll) {
+                matchArr.push(arr[i]);
             }
         }
         return matchArr;
 
     }
-    matchCheck() {
-        let matchArr = this.getMatches();
+    matchCheck(arr) {
+        let matchArr = this.getMatches(arr);
         
         if(matchArr.length > 1) {
             return true;
@@ -311,9 +320,9 @@ class Game {
     }
     ////////////////////////
     //gameplay
-    clearRolls() {
-        for(let i = 0; i < this.players.length; i++) {
-            this.players.currRoll = 0;
+    clearRolls(arr) {
+        for(let i = 0; i < arr.length; i++) {
+            arr[i].currRoll = 0;
         }
     }
 }
