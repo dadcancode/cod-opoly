@@ -203,7 +203,7 @@ class Game {
         console.log(rollers[1].currRoll);
         console.log(rollers[2].currRoll);
         if(this.matchCheck(rollers) === true) {
-            // this.reRoll(rollers);
+            this.reRoll(rollers);
         } else {
             this.announce(`${this.getHighestRoller(rollers).name} goes first`)
             $('#announcement').css('display', 'block');
@@ -260,7 +260,6 @@ class Game {
         let highestRoller = arr[0];
         for(let i = 1; i < arr.length; i++) {
             if(arr[i].currRoll > highestRoller.currRoll) {
-                console.log(`roll to compare to highest ${this.players[i].currRoll}`)
                 highestRoller = arr[i];
             }
         }
@@ -314,7 +313,7 @@ class Game {
     rollDice(numOfDie) {
         let result = 0;
         for(let i = 0; i < numOfDie; i ++) {
-            result += Math.floor(Math.random() * 7)
+            result += ((Math.floor(Math.random() * 6) + 1));
         }
         return result
     }
