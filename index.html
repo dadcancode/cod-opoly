@@ -155,50 +155,50 @@
                 </div>
             </div>
             <div class="gb-side-panel" id="left-panel">
-                <div class="reg-seg property" id="20">
+                <div class="reg-seg property" id="tile20">
                     <div class="color-bar"></div>
                     <div class="property-name"></div>
                     <div class="prop-sym token-cont"></div>
                     <div class="property-cost"></div>
                 </div>
-                <div class="reg-seg property" id="19">
+                <div class="reg-seg property" id="tile19">
                     <div class="color-bar"></div>
                     <div class="property-name"></div>
                     <div class="prop-sym token-cont"></div>
                     <div class="property-cost"></div>
                 </div>
                 <div class="reg-seg" id="18"></div>
-                <div class="reg-seg property" id="17">
+                <div class="reg-seg property" id="tile17">
                     <div class="color-bar"></div>
                     <div class="property-name"></div>
                     <div class="prop-sym token-cont"></div>
                     <div class="property-cost"></div>
                 </div>
-                <div class="reg-seg utility" id="16">
+                <div class="reg-seg utility" id="tile16">
                     <!-- <div class="utility-bar"></div> -->
                     <div class="property-name"></div>
                     <div class="prop-sym token-cont"></div>
                     <div class="property-cost"></div>
                 </div>
-                <div class="reg-seg property" id="15">
+                <div class="reg-seg property" id="tile15">
                     <div class="color-bar"></div>
                     <div class="property-name"></div>
                     <div class="prop-sym token-cont"></div>
                     <div class="property-cost"></div>
                 </div>
-                <div class="reg-seg property" id="14">
+                <div class="reg-seg property" id="tile14">
                     <div class="color-bar"></div>
                     <div class="property-name"></div>
                     <div class="prop-sym token-cont"></div>
                     <div class="property-cost"></div>
                 </div>
-                <div class="reg-seg utility" id="13">
+                <div class="reg-seg utility" id="tile13">
                     <!-- <div class="utility-bar"></div> -->
                     <div class="property-name"></div>
                     <div class="prop-sym token-cont"></div>
                     <div class="property-cost"></div>
                 </div>
-                <div class="reg-seg property" id="12">
+                <div class="reg-seg property" id="tile12">
                     <div class="color-bar"></div>
                     <div class="property-name"></div>
                     <div class="prop-sym token-cont"></div>
@@ -208,11 +208,12 @@
         </div>
         <div class="game-board-segment" id="gb-bottom">
             <div class="corner-seg" id="tile11">
-                <div>
+                <div id="jail-text">
                     <div>Just</div>
                     <div id="jail-img"></div>
+                    <div>Visiting</div>
                 </div>
-                <div>Visiting</div>
+                <div class="token-cont"></div>
             </div>
             <div class="reg-seg property" id="tile10">
                 <div class="color-bar"></div>
@@ -275,7 +276,7 @@
                     AS YOU PASS
                     <span id="go">GO</span>
                 </div>
-                <div id="go-token-cont">
+                <div class="token-cont">
                 </div>
             </div>
         </div>
@@ -319,18 +320,11 @@
         </div>
     </div>
 
-    <!-- Roll to go first -->
-    <div class="modal" id="roll-order">
-        <div id="roll-order-box">
-            <div id="roll-order-text">Rolling for order:</div>
-            <div id="results"></div>
-        </div>
-    </div>
-
     <!-- Annoucement Modal -->
     <div class="modal" id="announcement">
         <div id="announcement-box">
             <div id="announcement-text"></div>
+            <div id="ann-close">X</div>
         </div>
     </div>
 
@@ -338,6 +332,15 @@
     <!-- <div class="modal" id="prop-modal">
         <div></div>
     </div> -->
+
+    <!-- Event Modal -->
+    <div class="modal" id="event-modal">
+        <div id="event-box">
+            <div id="event-title"></div>
+            <div id="event-text"></div>
+            <div id="event-close">X</div>
+        </div>
+    </div>
 </body>
 </html>
 
