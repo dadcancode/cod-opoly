@@ -206,6 +206,10 @@ body {
     padding: 2%;
 }
 
+.player-item-row {
+    background-color: white;
+}
+
 .player-identity {
     height: 50%;
     display: flex;

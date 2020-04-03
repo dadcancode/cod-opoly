@@ -1,5 +1,5 @@
 class Player {
-    constructor(playerNum, name, sym) {
+    constructor(playerNum, name, sym, isHuman = false) {
         this.playerNum = playerNum;
         this.name = name;
         this.sym = sym;
@@ -8,6 +8,7 @@ class Player {
         this.inJail = false;
         this.isTurn = false;
         this.currRoll = 0;
+        this.isHuman = isHuman;
     }
 }
 
@@ -30,6 +31,8 @@ class GameTile {
         this.isPurchased = false;
         this.familyColor = familyColor;
         this.propImage = propImage;
+        this.numOfFunc = 0;
+        this.numOfApp = 0;
     }
 }
 
@@ -67,12 +70,13 @@ class Game {
     }
 //Game Setup
     generateHuman(event) {
+        console.log('human generated');
         for(let i = 0; i < this.syms.length; i++) {
             if(this.syms[i].symbol === $(event.currentTarget).text()) {
                 let $playerSym = this.syms[i];
                 let $playerNum = this.players.length + 1;
                 let $playerName = $('#player-select-name').val();
-                let newPlayer = new Player($playerNum, $playerName, $playerSym);
+                let newPlayer = new Player($playerNum, $playerName, $playerSym, true);
                 this.players.push(newPlayer);
                 this.syms[i].isSelected = true;
             }
@@ -97,6 +101,7 @@ class Game {
     updatePlayers() {
         for(let i = 0; i < 4; i++) {
             // console.log(this.players[i].sym);
+            $('.player-item').eq(i).attr('id', `${this.players[i].name}`);
             $('.player-icon-cont').eq(i).text(this.players[i].sym.symbol).css({
                 'background-color' : this.players[i].sym.backgroundColor,
                 'color' : this.players[i].sym.color
@@ -109,17 +114,18 @@ class Game {
         console.log(`number of players : ${this.players.length}`)
         this.updatePlayers();
         this.generateTokens();
+        this.nextRound();
     }
     generateGameTiles(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize, familyColor, propImage) {
         let newTile = new GameTile(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize, familyColor, propImage);
         this.gameTiles.push(newTile);
     }
     updateBoard() {
-        for(let i = 1; i < this.gameTiles.length; i++) {
+        for(let i = 0; i < this.gameTiles.length; i++) {
             console.log(`updating tile ${i}`)
             console.log(this.gameTiles[i].name)
-            $(`#${i + 1} .property-name`).text(this.gameTiles[i].name);
-            $(`#${i + 1} .property-cost`).text(this.gameTiles[i].cost);
+            $(`#tile${i + 1} .property-name`).text(this.gameTiles[i].name);
+            $(`#tile${i + 1} .property-cost`).text(this.gameTiles[i].cost);
         }
     }
     //////////////////////
@@ -140,20 +146,7 @@ class Game {
     generateSymbols() {
         $('#color-sym-select').empty();
         for(let i = 0; i < this.syms.length; i++) {
-            let $symDiv = $('<div>').addClass('color-sym').on('click', (event) => {
-                console.log('clicked');
-                this.generateHuman(event);
-                if(this.players.length < this.numOfHumans) {
-                    this.resetPlayerSelect();
-                } else if(this.players.length === 4) {
-                    $('#player-select').css('display', 'none');
-                    this.determineOrder(this.players);
-                } else {
-                    $('#player-select').css('display', 'none');
-                    this.generateComputer();
-                    this.determineOrder(this.players);
-                }
-            });
+            let $symDiv = $('<div>').addClass('color-sym');
             if(this.syms[i].isSelected === false) {
                 $symDiv.text(this.syms[i].symbol).attr('id', `${i}`);
                 $('#color-sym-select').append($symDiv);
@@ -194,31 +187,30 @@ class Game {
         //     }, 1000);
         //     this.startGame();
         // }
+
+        //store players in variable
         let rollers = this.getRollers(arr)
-        console.log(rollers[0].name);
-        console.log(rollers[1].name);
-        console.log(rollers[2].name);
+        //roll for all elligible
         this.rollPlayers(rollers);
-        console.log(rollers[0].currRoll);
-        console.log(rollers[1].currRoll);
-        console.log(rollers[2].currRoll);
+        this.consoleValue(rollers, 'currRoll');
+        //check for tie
         if(this.matchCheck(rollers) === true) {
+            //if true reroll the ties
             this.reRoll(rollers);
         } else {
-            this.announce(`${this.getHighestRoller(rollers).name} goes first`)
-            $('#announcement').css('display', 'block');
-            setTimeout(() => {
-                $('#announcement').css('display', 'none');
-            }, 2300)
-            setTimeout(() => {
-                this.startGame();
-            }, 2700);
+            //set turn in global variable
+            for(let i = 0; i < this.players.length; i++) {
+                if(this.players[i].name === this.getHighestRoller(rollers).name) {
+                    this.setTurn(this.players[i]);
+                }
+            }
+            return this.getHighestRoller(rollers);
         }
 
     }
     consoleValue(arr, val) {
         for(let i = 0; i < arr.length; i++) {
-            console.log(`value ${val} of ${arr} IND ${i} : ${arr[i][val]}`);
+            console.log(`value ${val} of arr IND ${i} : ${arr[i][val]}`);
         }
     }
     getRollers(arr) {
@@ -238,21 +230,22 @@ class Game {
     }
     reRoll(arr) {
         console.log('reroll');
+        //get matches and store
         let newRollers = this.getMatches(arr);
         this.consoleValue(newRollers, 'name');
         this.rollPlayers(newRollers);
         this.consoleValue(newRollers, 'currRoll')
+        //if there is another tie
         if(this.matchCheck(newRollers) === true) {
             this.reRoll(newRollers);
         } else {
-            this.announce(`${this.getHighestRoller(newRollers).name} goes first`)
-            $('#announcement').css('display', 'block');
-            setTimeout(() => {
-                $('#announcement').css('display', 'none');
-            }, 2300)
-            setTimeout(() => {
-                this.startGame();
-            }, 2700);
+            //update turn in global
+            for(let i = 0; i < this.players.length; i++) {
+                if(this.players[i].name === this.getHighestRoller(newRollers).name) {
+                    this.setTurn(this.players[i]);
+                }
+            }
+            return this.getHighestRoller(newRollers);
         }
     }
         //determine highest roller
@@ -298,7 +291,162 @@ class Game {
     announce(text) {
         $('#announcement-text').empty().text(text);
     }
+
+    ////////////////////////////
+    //Turn Logic
+    //////////////////////////
+    endTurn(player) {
+        player.isTurn = false;
+        $(`.${player.playerNum}`).css(`background-color`, 'white');
+    }
+    setTurn(player) {
+        player.isTurn = true;
+        //change background of curr player div
+        $(`.${player.playerNum}`).css('background-color', player.sym.backgroundColor);
+    }
+
+    whosTurn() {
+        for(let i = 0; i < this.players.length; i++) {
+            if(this.players[i].isTurn === true) {
+                return this.players[i];
+            }
+        }
+    }
     
+    nextRound() {
+        let currPlayer = this.whosTurn();
+        if(currPlayer.isHuman === false) {
+            this.compTurn(currPlayer);
+        } else {
+            this.humanTurn(currPlayer);
+        }
+    }
+
+    compTurn(player) {
+        //check for properties
+        if(this.propEval(player.properties) === true) {
+            this.buildHouses(this.getImprovedFam(this.getComplFam(player.properties)));
+            this.buildHouses(this.getComplFam(player.properties));
+        }
+        let roll1 = this.rollDice(1);
+        let roll2 = this.rollDice(1);
+        let totalRoll = roll1 + roll2;
+        this.moveToken(player, totalRoll);
+        this.updateBoardPos(player);
+    }
+    rollTurn() {
+        this.whosTurn().currRoll = this.rollDice(1);
+    }
+    getFamToEval(properties) {
+        let complFam = this.getComplFam(properties);
+        let impovedFam = this.getImprovedFam(complFam);
+        if(impovedFam.length > 0) {
+            return impovedFam;
+        } else {
+            return complFam;
+        }
+    }
+    buildHouses(properties) {
+        let propToImprove = this.getPropToImprove(properties);
+        if(propToImprove !== 'none') {
+            if(propToImprove.numOfFunc < 4) {
+                propToImprove.numOfFunc++;
+                this.whosTurn().bank -= propToImprove.funcCost;
+                if(this.propEval(properties) === true) {
+                    this.buildHouses(properties);
+                }
+            } else if(propToImprove.numOfApp < 1) {
+                propToImprove.numOfApp++;
+                this.whosTurn().bank -= propToImprove.appCost;
+                if(this.propEval(properties) === true) {
+                    this.buildHouses(properties);
+                }
+            }            
+        }
+    }
+    bankCheck(itemToCheck) {
+        if((this.whosTurn().bank - itemToCheck) > 500) {
+            return true;
+        }
+        return false;
+    }
+    propCheck(player) {
+        if(player.properties.length > 0) {
+            return true;
+        }
+        return false;
+    }
+    propEval(properties) {
+        //get any completed family groups and store in local var
+        let complFams = this.getComplFam(properties);
+        //if there are any
+        if(complFams.length > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    
+
+    getImprovedFam(properties) {
+        let underConstruction = [];
+        for(let i = 0; i < properties.length; i++) {
+            for(let j = properties[i].owned.length - 1; j > 0; j--) {
+                if(properties[i].owned[j].numOfFunc > 0) {
+                    underConstruction.push(properties[i]);
+                }
+            }
+        }
+        return underConstruction;
+    }
+    
+    getPropToImprove(properties) {
+        for(let i = properties.length - 1; i > 0; i--) {
+            let propToImprove = properties[i].owned[properties[i].owned.length - 1];
+            let testNum = properties[i].owned[properties[i].owned.length - 1].numOfFunc;
+            for(let j = properties[i].owned.length - 1; j > 0; j--) {
+                if((properties[i].owned[j].numOfFunc < testNum) && (this.bankCheck(properties[i].owned[j].funcCost) === true)) {
+                    propToImprove = properties[i].owned[j];
+                    return propToImprove;
+                }
+            }
+            if((testNum < 4) && (this.bankCheck(propToImprove.funcCost) === true)) {
+                return propToImprove;
+            } else {
+                for(let j = properties[i].owned.length - 1; j > 0; j--) {
+                    if((properties[i].owned[j].numOfApp < 1) && (this.bankCheck(properties[i].owned[j].appCost) === true)) {
+                        propToImprove = properties[i].owned[j];
+                        return propToImprove;
+                    }
+                }
+            }
+        }
+        return 'none';
+    }
+    
+
+    allFuncBuiltCheck(property) {
+        if(property.numOfFunc === 4) {
+            return true;
+        }
+        return false;
+    }
+    appBuiltCheck(property) {
+        if(property.numOfApp === 1) {
+            return true;
+        }
+        return false;
+    }
+
+    getComplFam(properties) {
+        let complFams = [];
+        for(let i = 0; i < properties.length; i++) {
+            if(properties[i].size === properties[i].owned.length) {
+                complFams.push(properties[i]);
+            }
+        }
+        return complFams;
+    }
     /////////////////////////////
     //Token Movement
     generateTokens() {
@@ -316,6 +464,16 @@ class Game {
             result += ((Math.floor(Math.random() * 6) + 1));
         }
         return result
+    }
+    moveToken(player, num) {
+        player.position += num;
+        if(player.position > 40) {
+            player.position -= 40;
+        }
+        this.updateBoardPos(player);
+    }
+    updateBoardPos(player) {
+        $(`#tile${player.position + 1} .token-cont`).append($(`.player-token #${player.playerNum}`));
     }
     ////////////////////////
     //gameplay
@@ -338,22 +496,46 @@ $(() => {
     currentGame.generateGameTiles('property', 1, 'Lisp', 60, 2, 50, 50, 250, [10, 30, 90, 160], 1, 1, 2, 'gold', 'none');
 //Freelance 1
     currentGame.generateGameTiles('event', 2, 'Freelance');
-    console.log(currentGame.gameTiles[2].name)
 //Perl
     currentGame.generateGameTiles('property', 3, 'Perl', 60, 4, 50, 50, [20, 60, 90, 180], 1, 2, 2, 'gold', 'none');
 //Income Tax'
-    currentGame.generateGameTiles('event', 4, 'Tax', 200)
+    currentGame.generateGameTiles('event', 4, 'Tax', 200);
 //MDN
-    currentGame.generateGameTiles('property', 5, 'MDN', 200, 25, 0, 0, 0, [25, 50, 100, 200], 0, 1, 4, 'none', 'none')
+    currentGame.generateGameTiles('property', 5, 'MDN', 200, 25, 0, 0, 0, [25, 50, 100, 200], 0, 1, 4, 'none', 'none');
 
     currentGame.updateBoard();
 
     $('#start-modal').css('display', 'block');
+
     $('#start-btn').on('click', () => {
         let $numOfHumans = $('#numOfPlayers').val();
         currentGame.numOfHumans = $numOfHumans;
         $('#start-modal').css('display', 'none');
         currentGame.resetPlayerSelect();
         $('#player-select').css('display','block');
-    })
+    });
+
+    $('.color-sym').on('click', (event) => {
+        console.log('clicked');
+        currentGame.generateHuman(event);
+        if(currentGame.players.length < currentGame.numOfHumans) {
+            currentGame.resetPlayerSelect();
+        } else if(currentGame.players.length === 4) {
+            $('#player-select').css('display', 'none');
+        } else {
+            $('#player-select').css('display', 'none');
+            currentGame.generateComputer();
+        }
+    });
+
+    currentGame.determineOrder(currentGame.players);
+    //currentGame.announce(`${firstPlayer.name} goes first`);
+    //$('#announcement').css('display', 'block');
+    //setTimeout(() => {
+    //    $('#announcement').css('display', 'none');
+    //}, 1500);
+    
+    currentGame.startGame();
+
+
 })
