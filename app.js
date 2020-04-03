@@ -83,6 +83,7 @@ class Game {
         }
     }
     generateComputer() {
+        console.log('generatecomputer')
         for(let i = 0; i < 4 - this.numOfHumans; i++) {
             for(let j = 0; j < this.syms.length; j++) {
                 if(this.syms[j].isSelected === false) {
@@ -110,11 +111,28 @@ class Game {
             $('.player-money span').eq(i).text(this.players[i].bank);
         }
     }
+    humanPlayersCreated() {
+        if(this.numOfHumans < this.players.length) {
+            return false;
+        }
+        return true;
+    }
     startGame() {
-        console.log(`number of players : ${this.players.length}`)
-        this.updatePlayers();
-        this.generateTokens();
-        this.nextRound();
+        $('#start-modal').css('display', 'block');
+
+        $('#start-btn').on('click', () => {
+            let $numOfHumans = $('#numOfPlayers').val();
+            console.log(`numofhum val = ${$numOfHumans}`)
+            this.numOfHumans = $numOfHumans;
+            console.log(`this.numOfhumans = ${this.numOfHumans}`)
+            $('#start-modal').css('display', 'none');
+            this.resetPlayerSelect();
+            $('#player-select').css('display','block');
+        });
+
+        
+        
+        
     }
     generateGameTiles(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize, familyColor, propImage) {
         let newTile = new GameTile(type, position, name, cost, rent, funcCost, appCost, rentWApp, rentWFunc, familyNum, familyId, familySize, familyColor, propImage);
@@ -148,7 +166,40 @@ class Game {
         for(let i = 0; i < this.syms.length; i++) {
             let $symDiv = $('<div>').addClass('color-sym');
             if(this.syms[i].isSelected === false) {
-                $symDiv.text(this.syms[i].symbol).attr('id', `${i}`);
+                $symDiv.text(this.syms[i].symbol).attr('id', `${i}`).on('click', () => {
+                    console.log('clicked');
+                    this.generateHuman(event);
+                    if(this.players.length === 4) {
+                        $('#player-select').css('display', 'none');
+                        this.determineOrder(this.players);
+                        let firstPlayer = this.whosTurn();
+                        this.announce(`${firstPlayer.name} goes first!`);
+                        $('#announcement').show();
+                        this.updatePlayers();
+                        setTimeout(() => {
+                            $('#announcement').hide();
+                        }, 1200);
+                        setTimeout(() => {
+                            this.nextRound();
+                        }, 2400);
+                    } else if(this.numOfHumans < this.players.length) {
+                        this.resetPlayerSelect();
+                    } else {
+                        $('#player-select').css('display', 'none');
+                        this.generateComputer();
+                        this.determineOrder(this.players);
+                        let firstPlayer = this.whosTurn();
+                        this.announce(`${firstPlayer.name} goes first!`);
+                        $('#announcement').show();
+                        this.updatePlayers();
+                        setTimeout(() => {
+                            $('#announcement').hide();
+                        }, 1200);
+                        setTimeout(() => {
+                            this.nextRound();
+                        }, 2400);
+                    }
+                });
                 $('#color-sym-select').append($symDiv);
             } else {
                 $symDiv.text(this.syms[i].symbol).attr('id', `${i}`).css('display', 'none');
@@ -192,7 +243,6 @@ class Game {
         let rollers = this.getRollers(arr)
         //roll for all elligible
         this.rollPlayers(rollers);
-        this.consoleValue(rollers, 'currRoll');
         //check for tie
         if(this.matchCheck(rollers) === true) {
             //if true reroll the ties
@@ -204,7 +254,6 @@ class Game {
                     this.setTurn(this.players[i]);
                 }
             }
-            return this.getHighestRoller(rollers);
         }
 
     }
@@ -489,6 +538,7 @@ class Game {
 
 $(() => {
     const currentGame = new Game();
+    console.log(`currentGame.players.lenth = ${currentGame.players.length}`)
 //creating game tiles
 //go tile
     currentGame.generateGameTiles('corner', 0, 'go', 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -505,35 +555,15 @@ $(() => {
 
     currentGame.updateBoard();
 
-    $('#start-modal').css('display', 'block');
+    // $('#start-modal').css('display', 'block');
 
-    $('#start-btn').on('click', () => {
-        let $numOfHumans = $('#numOfPlayers').val();
-        currentGame.numOfHumans = $numOfHumans;
-        $('#start-modal').css('display', 'none');
-        currentGame.resetPlayerSelect();
-        $('#player-select').css('display','block');
-    });
-
-    $('.color-sym').on('click', (event) => {
-        console.log('clicked');
-        currentGame.generateHuman(event);
-        if(currentGame.players.length < currentGame.numOfHumans) {
-            currentGame.resetPlayerSelect();
-        } else if(currentGame.players.length === 4) {
-            $('#player-select').css('display', 'none');
-        } else {
-            $('#player-select').css('display', 'none');
-            currentGame.generateComputer();
-        }
-    });
-
-    currentGame.determineOrder(currentGame.players);
-    //currentGame.announce(`${firstPlayer.name} goes first`);
-    //$('#announcement').css('display', 'block');
-    //setTimeout(() => {
-    //    $('#announcement').css('display', 'none');
-    //}, 1500);
+    // $('#start-btn').on('click', () => {
+    //     let $numOfHumans = $('#numOfPlayers').val();
+    //     currentGame.numOfHumans = $numOfHumans;
+    //     $('#start-modal').css('display', 'none');
+    //     currentGame.resetPlayerSelect();
+    //     $('#player-select').css('display','block');
+    // });
     
     currentGame.startGame();
 
