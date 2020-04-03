@@ -8,6 +8,8 @@ class Player {
         this.inJail = false;
         this.isTurn = false;
         this.currRoll = 0;
+        this.currDie1 = 0;
+        this.currDie2 = 0;
         this.isHuman = isHuman;
         this.position = 0;
     }
@@ -29,7 +31,7 @@ class GameTile {
         this.familyNum = familyNum;
         this.familyId = familyId;
         this.familySize = familySize;
-        this.isPurchased = false;
+        this.owner = 5;
         this.familyColor = familyColor;
         this.propImage = propImage;
         this.numOfFunc = 0;
@@ -121,6 +123,7 @@ class Game {
         return true;
     }
     startGame() {
+        console.log('startgame')
         $('#start-modal').css('display', 'block');
 
         $('#start-btn').on('click', () => {
@@ -159,12 +162,14 @@ class Game {
     }
     //Player select modal
     resetPlayerSelect() {
+        console.log('this.resetPlayerSelect')
         $('#player-select-name').val('');
         $('#player-select-number').text(`Player ${this.players.length + 1}`);
         this.generateSymbols();
 
     }
     generateSymbols() {
+        console.log('generatesymbols')
         $('#color-sym-select').empty();
         for(let i = 0; i < this.syms.length; i++) {
             let $symDiv = $('<div>').addClass('color-sym');
@@ -176,13 +181,13 @@ class Game {
                         $('#player-select').css('display', 'none');
                         this.determineOrder(this.players);
                         let firstPlayer = this.whosTurn();
-                        this.announce(`${firstPlayer.name} goes first!`);
                         this.updatePlayers();
                         this.generateTokens();
-                        $('#announcement').show();
-                        setTimeout(() => {
-                            $('#announcement').hide();
-                        }, 1200);
+                        this.announce(`${firstPlayer.name} goes first!`);
+                        // $('#announcement').show();
+                        // setTimeout(() => {
+                        //     $('#announcement').hide();
+                        // }, 1200);
                         setTimeout(() => {
                             this.nextRound();
                         }, 2400);
@@ -193,13 +198,9 @@ class Game {
                         this.generateComputer();
                         this.determineOrder(this.players);
                         let firstPlayer = this.whosTurn();
-                        this.announce(`${firstPlayer.name} goes first!`);
                         this.updatePlayers();
                         this.generateTokens();
-                        $('#announcement').show();
-                        setTimeout(() => {
-                            $('#announcement').hide();
-                        }, 1200);
+                        this.announce(`${firstPlayer.name} goes first!`);
                         setTimeout(() => {
                             this.nextRound();
                         }, 2400);
@@ -308,6 +309,10 @@ class Game {
     //announcement modal
     announce(text) {
         $('#announcement-text').empty().text(text);
+        $('#announcement').show();
+        setTimeout(() => {
+            $('#announcement').hide('slow');
+        }, 800);
     }
 
     ////////////////////////////
@@ -351,15 +356,16 @@ class Game {
         }
         if(this.getPropToImprove(player.properties) === 'none') {
             this.rollTurn(player);
+            this.moveToken(player, player.currRoll);
+            this.positionEval(player);
         }
     }
     rollTurn(player) {
         console.log('rollturn')
-        let roll1 = this.rollDice(1);
-        let roll2 = this.rollDice(1);
-        player.currRoll = (roll1 + roll2);
+        player.currDie1 = this.rollDice(1);
+        player.currDie2 = this.rollDice(1);
+        player.currRoll = (player.currDie1 + player.currDie2);
         console.log(`----${player.currRoll}`)
-        this.moveToken(player, player.currRoll);
 
     }
     getFamToEval(properties) {
@@ -528,9 +534,66 @@ class Game {
         this.updateBoardPos(player);
     }
     updateBoardPos(player) {
-        console.log('updateboard')
+        console.log('updateboardpos')
         $(`#tile${player.position + 1} .token-cont`).append($(`#token${player.playerNum - 1}`));
         // $(`#token${player.playerNum - 1}`).css('background-color', 'pink');
+    }
+
+    positionEval(player) {
+        console.log(`positioneval`)
+        if(this.getPlayerBoardLocation(player).type === 'property') {
+            console.log(`----landed on prop = ${this.getPlayerBoardLocation(player).name}`)
+            this.landedOnProp(player);
+        } else if(this.getPlayerBoardLocation(player).type === 'event') {
+            this.landedOnEvent(player);
+        }
+    }
+
+    getPlayerBoardLocation(player) {
+        return this.gameTiles[player.position];
+    }
+
+    landedOnProp(player) {
+        console.log(`landedonprop`)
+        console.log(`---is player human? ${player.isHuman}`)
+        if(player.isHuman === false) {
+            console.log(`player is computer`)
+            console.log(`----owner of property landed on is ${this.getPlayerBoardLocation(player).owner}`);
+            if((this.getPlayerBoardLocation(player).owner === 5) && (this.bankCheck(this.getPlayerBoardLocation(player).cost) === true)) {
+                console.log(`----${this.getPlayerBoardLocation(player).name} is for sale`)
+                this.buyProp(player, this.getPlayerBoardLocation(player));
+                this.announce(`${player.name} has purchased ${this.getPlayerBoardLocation(player).name} for $${this.getPlayerBoardLocation(player).cost}`);
+            }
+        }
+    }
+    buyProp(player, property) {
+        console.log('buy prop')
+        let fId = property.familyNum;
+        let fSize = property.familySize;
+        //check to see if any other family members are owned
+        for(let i = 0; i < player.properties.length; i++) {
+            if(player.properties[i].id === property.familyNum) {
+                console.log(`${player.name} already owns part of this family group`);
+                player.properties[i].owned.push(property);
+                console.log(`------${player.properties.owned[player.properties.owned.length - 1].name} has been added to ${player.name}'s properties`);
+            } else {
+                player.properties.owned.push(
+                    {
+                        id: fId,
+                        size: fSize,
+                        owned: [property]
+                    }
+                );
+                console.log(`------${player.properties.owned[player.properties.owned.length - 1].name} has been added to ${player.name}'s properties`);
+            }
+        }
+        property.owner = player.name;
+        // this.sortProp(player.properties.owned);
+    }
+    sortProp(propArr) {
+        propArr.sort((a, b) => {
+            return b.id - a.id;
+        })
     }
     ////////////////////////
     //gameplay
@@ -549,17 +612,27 @@ $(() => {
     console.log(`currentGame.players.lenth = ${currentGame.players.length}`)
 //creating game tiles
 //go tile
-    currentGame.generateGameTiles('corner', 0, 'go', 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    currentGame.generateGameTiles('corner', 0, 'go');
 //Lisp
-    currentGame.generateGameTiles('property', 1, 'Lisp', 60, 2, 50, 50, 250, [10, 30, 90, 160], 1, 1, 2, 'gold', 'none');
+    currentGame.generateGameTiles('property', 1, 'Lisp', 60, 2, 50, 50, 250, [10, 30, 90, 160], 1, 0, 2, 'gold', 'none');
 //Freelance 1
     currentGame.generateGameTiles('event', 2, 'Freelance');
 //Perl
-    currentGame.generateGameTiles('property', 3, 'Perl', 60, 4, 50, 50, [20, 60, 90, 180], 1, 2, 2, 'gold', 'none');
+    currentGame.generateGameTiles('property', 3, 'Perl', 60, 4, 50, 50, 450, [20, 60, 90, 180], 1, 1, 2, 'gold', 'none');
 //Income Tax'
     currentGame.generateGameTiles('event', 4, 'Tax', 200);
 //MDN
-    currentGame.generateGameTiles('property', 5, 'MDN', 200, 25, 0, 0, 0, [25, 50, 100, 200], 0, 1, 4, 'none', 'none');
+    currentGame.generateGameTiles('property', 5, 'MDN', 200, 25, 0, 0, 0, [25, 50, 100, 200], 0, 0, 4, 'none', 'none');
+//HTML
+    currentGame.generateGameTiles('property', 6, 'HTML', 100, 6, 50, 50, 550, [30, 90, 270, 400], 2, 0, 3, 'blue');
+//Craigslist 1
+    currentGame.generateGameTiles('event', 7, 'Craigslist');
+//CSS
+    currentGame.generateGameTiles('property', 8, 'CSS', 100, 6, 50, 50, 550, [30, 90, 270, 400], 2, 1, 3, 'blue');
+//JavaScript
+    currentGame.generateGameTiles('property', 9, 'JavaScript', 120, 8, 50, 50, 600, [40, 100, 300, 450], 2, 2, 3, 'blue')
+//Jail
+    currentGame.generateGameTiles('corner', 10, 'Jail')
 
     currentGame.updateBoard();
 
