@@ -9,6 +9,7 @@ class Player {
         this.isTurn = false;
         this.currRoll = 0;
         this.isHuman = isHuman;
+        this.position = 0;
     }
 }
 
@@ -77,6 +78,7 @@ class Game {
                 let $playerNum = this.players.length + 1;
                 let $playerName = $('#player-select-name').val();
                 let newPlayer = new Player($playerNum, $playerName, $playerSym, true);
+                console.log(`newplayer ishuma = ${newPlayer.isHuman}`)
                 this.players.push(newPlayer);
                 this.syms[i].isSelected = true;
             }
@@ -91,6 +93,7 @@ class Game {
                     let $compNum = this.players.length + 1;
                     let $compName = `CPlayer ${$compNum}`;
                     let newComputer = new Player($compNum, $compName, $compSym);
+                    console.log(`newcomputer ishuman = ${newComputer.isHuman}`)
                     this.players.push(newComputer);
                     this.syms[j].isSelected === true;
                     i++
@@ -174,8 +177,9 @@ class Game {
                         this.determineOrder(this.players);
                         let firstPlayer = this.whosTurn();
                         this.announce(`${firstPlayer.name} goes first!`);
-                        $('#announcement').show();
                         this.updatePlayers();
+                        this.generateTokens();
+                        $('#announcement').show();
                         setTimeout(() => {
                             $('#announcement').hide();
                         }, 1200);
@@ -190,8 +194,9 @@ class Game {
                         this.determineOrder(this.players);
                         let firstPlayer = this.whosTurn();
                         this.announce(`${firstPlayer.name} goes first!`);
-                        $('#announcement').show();
                         this.updatePlayers();
+                        this.generateTokens();
+                        $('#announcement').show();
                         setTimeout(() => {
                             $('#announcement').hide();
                         }, 1200);
@@ -211,35 +216,6 @@ class Game {
     //roll for order
     determineOrder(arr) {
         console.log('determineOrder');
-        //roll for each player and push to modal
-        // for(let i = 0; i < this.players.length; i++) {
-        //     let $rollResultCont = $('<div>').addClass('roll-result');
-        //     let $playerDiv = $('<div>').text(`${this.players[i].name} is rolling. . .`);
-        //     this.players[i].currRoll = this.rollDice(1);
-        //     let $rollResult = $('<div>').text(`> ${this.players[i].currRoll}`);
-        //     $rollResultCont.append($playerDiv);
-        //     setTimeout(() => {
-        //         $('#results').append($rollResultCont);
-        //         setTimeout(() => {
-        //             $rollResultCont.append($rollResult);
-        //         }, 250 * i + 1);
-        //     }, 1000 * i + 1);
-        // }
-        // if(this.matchCheck() === true) {
-        //     this.announceTies();
-        //     setTimeout(() => {
-        //         this.reRollMatches();
-        //     }, 3000);
-        // } else {
-        //     this.announce(`${this.getHighestRoller().name} goes first!`)
-        //     $('#announcement').css('display', 'block');
-        //     setTimeout(() => {
-        //         $('#announcement').css('display', 'none');
-        //     }, 1000);
-        //     this.startGame();
-        // }
-
-        //store players in variable
         let rollers = this.getRollers(arr)
         //roll for all elligible
         this.rollPlayers(rollers);
@@ -256,11 +232,6 @@ class Game {
             }
         }
 
-    }
-    consoleValue(arr, val) {
-        for(let i = 0; i < arr.length; i++) {
-            console.log(`value ${val} of arr IND ${i} : ${arr[i][val]}`);
-        }
     }
     getRollers(arr) {
         let rollers = [];
@@ -281,9 +252,7 @@ class Game {
         console.log('reroll');
         //get matches and store
         let newRollers = this.getMatches(arr);
-        this.consoleValue(newRollers, 'name');
         this.rollPlayers(newRollers);
-        this.consoleValue(newRollers, 'currRoll')
         //if there is another tie
         if(this.matchCheck(newRollers) === true) {
             this.reRoll(newRollers);
@@ -363,28 +332,35 @@ class Game {
     }
     
     nextRound() {
-        let currPlayer = this.whosTurn();
-        if(currPlayer.isHuman === false) {
-            this.compTurn(currPlayer);
-        } else {
-            this.humanTurn(currPlayer);
-        }
+        console.log(`nextround`);
+        console.log(`----whosturn = ${this.whosTurn().name}`);
+        if(this.whosTurn().isHuman === false) {
+            this.compTurn(this.whosTurn());
+        } 
+        // else {
+        //     this.humanTurn(this.whosTurn());
+        // }
     }
 
     compTurn(player) {
+        console.log(`compturn ${player.name}`);
         //check for properties
-        if(this.propEval(player.properties) === true) {
-            this.buildHouses(this.getImprovedFam(this.getComplFam(player.properties)));
-            this.buildHouses(this.getComplFam(player.properties));
+        console.log(this.getPropToImprove(player.properties));
+        while(this.getPropToImprove(player.properties) !== 'none') {
+            this.buildHouses(this.getPropToImprove(player.properties));
         }
+        if(this.getPropToImprove(player.properties) === 'none') {
+            this.rollTurn(player);
+        }
+    }
+    rollTurn(player) {
+        console.log('rollturn')
         let roll1 = this.rollDice(1);
         let roll2 = this.rollDice(1);
-        let totalRoll = roll1 + roll2;
-        this.moveToken(player, totalRoll);
-        this.updateBoardPos(player);
-    }
-    rollTurn() {
-        this.whosTurn().currRoll = this.rollDice(1);
+        player.currRoll = (roll1 + roll2);
+        console.log(`----${player.currRoll}`)
+        this.moveToken(player, player.currRoll);
+
     }
     getFamToEval(properties) {
         let complFam = this.getComplFam(properties);
@@ -395,24 +371,17 @@ class Game {
             return complFam;
         }
     }
-    buildHouses(properties) {
-        let propToImprove = this.getPropToImprove(properties);
-        if(propToImprove !== 'none') {
-            if(propToImprove.numOfFunc < 4) {
-                propToImprove.numOfFunc++;
-                this.whosTurn().bank -= propToImprove.funcCost;
-                if(this.propEval(properties) === true) {
-                    this.buildHouses(properties);
-                }
-            } else if(propToImprove.numOfApp < 1) {
-                propToImprove.numOfApp++;
-                this.whosTurn().bank -= propToImprove.appCost;
-                if(this.propEval(properties) === true) {
-                    this.buildHouses(properties);
-                }
-            }            
+
+    buildHouses(property) {
+        if(property.numOfFunc === 4) {
+            property.numOfFunc++;
+            this.whosTurn().bank -= property.funcCost;
+        } else {
+            property.numOfApp++;
+            this.whosTurn().bank -= property.appCost;
         }
     }
+
     bankCheck(itemToCheck) {
         if((this.whosTurn().bank - itemToCheck) > 500) {
             return true;
@@ -448,8 +417,8 @@ class Game {
         }
         return underConstruction;
     }
-    
-    getPropToImprove(properties) {
+
+    testCompletedProps(properties) {
         for(let i = properties.length - 1; i > 0; i--) {
             let propToImprove = properties[i].owned[properties[i].owned.length - 1];
             let testNum = properties[i].owned[properties[i].owned.length - 1].numOfFunc;
@@ -471,6 +440,41 @@ class Game {
             }
         }
         return 'none';
+    }
+
+    testImprovedProps(properties) {
+        for(let i = properties.length - 1; i > 0; i--) {
+            let propToImprove = properties[i].owned[properties[i].owned.length - 1];
+            let testNum = properties[i].owned[properties[i].owned.length - 1].numOfFunc;
+            for(let j = properties[i].owned.length - 1; j > 0; j--) {
+                if((properties[i].owned[j].numOfFunc < testNum) && (this.bankCheck(properties[i].owned[j].funcCost) === true)) {
+                    propToImprove = properties[i].owned[j];
+                    return propToImprove;
+                }
+            }
+            if((testNum < 4) && (this.bankCheck(propToImprove.funcCost) === true)) {
+                return propToImprove;
+            } else {
+                for(let j = properties[i].owned.length - 1; j > 0; j--) {
+                    if((properties[i].owned[j].numOfApp < 1) && (this.bankCheck(properties[i].owned[j].appCost) === true)) {
+                        propToImprove = properties[i].owned[j];
+                        return propToImprove;
+                    }
+                }
+            }
+        }
+        return 'none';
+    }
+    
+    getPropToImprove(properties) {
+        console.log('getproptoimprove')
+        if(this.testImprovedProps(this.getImprovedFam(this.getComplFam(properties)) !== 'none')) {
+            return this.testImprovedProps(this.getImprovedFam(this.getComplFam(properties)));
+        } else if(this.testCompletedProps(this.getComplFam(properties)) !== 'none') {
+            return this.testCompletedProps(this.getComplFam(properties));
+        } else {
+            return 'none';
+        }
     }
     
 
@@ -500,7 +504,7 @@ class Game {
     //Token Movement
     generateTokens() {
         for(let i = 0; i < this.players.length; i++) {
-            let $token = $('<div>').addClass('player-token').attr('id', `${i}`).text(this.players[i].sym.symbol).css({
+            let $token = $('<div>').addClass('player-token').attr('id', `token${i}`).text(this.players[i].sym.symbol).css({
                 'background-color' : this.players[i].sym.backgroundColor,
                 'color' : this.players[i].sym.color
             });
@@ -514,15 +518,19 @@ class Game {
         }
         return result
     }
-    moveToken(player, num) {
-        player.position += num;
+    moveToken(player) {
+        console.log('movetoken');
+        player.position += player.currRoll;
+        console.log(`---player.position = ${player.position}`);
         if(player.position > 40) {
             player.position -= 40;
         }
         this.updateBoardPos(player);
     }
     updateBoardPos(player) {
-        $(`#tile${player.position + 1} .token-cont`).append($(`.player-token #${player.playerNum}`));
+        console.log('updateboard')
+        $(`#tile${player.position + 1} .token-cont`).append($(`#token${player.playerNum - 1}`));
+        // $(`#token${player.playerNum - 1}`).css('background-color', 'pink');
     }
     ////////////////////////
     //gameplay
