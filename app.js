@@ -12,6 +12,8 @@ class Player {
         this.currDie2 = 0;
         this.isHuman = isHuman;
         this.position = 0;
+        this.isActive = true;
+        this.turnsInJail = 0;
     }
 }
 
@@ -104,6 +106,7 @@ class Game {
         ]
 
         this.numOfHumans = numOfHumans;
+        this.freeParking = 0;
     }
 //Game Setup
     generateHuman(event) {
@@ -156,8 +159,64 @@ class Game {
         }
         return true;
     }
+
+    resetBoard() {
+        // reset symbols
+        for(let i = 0; i < this.syms.length; i++) {
+            this.syms[i].isSelected = false;
+        }
+
+        this.players = [];
+
+        this.gameTiles = [];
+
+        this.freeParking = 0;
+
+        this.numOfHumans = 0;
+
+        $('.token-cont').empty();
+        $('#fp-token-cont').empty();
+        $('#go-token-cont').empty();
+
+        //creating game tiles
+//go tile
+        this.generateGameTiles('corner', 0, 'go');
+    //Lisp
+        this.generateGameTiles('property', 1, 'Lisp', 60, 2, 50, 50, 250, [10, 30, 90, 160], 1, 0, 2, 'gold', 'none');
+    //Freelance 1
+        this.generateGameTiles('event', 2, 'Freelance');
+    //Perl
+        this.generateGameTiles('property', 3, 'Perl', 60, 4, 50, 50, 450, [20, 60, 90, 180], 1, 1, 2, 'gold', 'none');
+    //Income Tax'
+        this.generateGameTiles('event', 4, 'Tax', 200);
+    //MDN
+        this.generateGameTiles('property', 5, 'MDN', 200, 25, 0, 0, 0, [25, 50, 100, 200], 0, 0, 4, 'none', 'none');
+    //HTML
+        this.generateGameTiles('property', 6, 'HTML', 100, 6, 50, 50, 550, [30, 90, 270, 400], 2, 0, 3, 'blue');
+    //Craigslist 1
+        this.generateGameTiles('event', 7, 'Craigslist');
+    //CSS
+        this.generateGameTiles('property', 8, 'CSS', 100, 6, 50, 50, 550, [30, 90, 270, 400], 2, 1, 3, 'blue');
+    //JavaScript
+        this.generateGameTiles('property', 9, 'JavaScript', 120, 8, 50, 50, 600, [40, 100, 300, 450], 2, 2, 3, 'blue')
+    //Jail
+        this.generateGameTiles('corner', 10, 'Jail')
+    //JQuery
+        this.generateGameTiles('property', 11, 'JQuery', 140, 10, 100, 100, 750, [50, 150, 450, 625], 3, 0, 3, 'green');
+    //GitHub
+        this.generateGameTiles('utility', 12, 'GitHub', 150, 0, 0, 0, 0, 0, 9, 0, 2);
+    //Ember
+        this.generateGameTiles('property', 13, 'Ember', 140, 10, 100, 100, 750, [50, 150, 450, 625], 3, 1, 3, 'green');
+    //React
+        this.generateGameTiles('property', 14, 'React', 160, 12, 100, 100, 900, [60, 180, 500, 700], 3, 2, 3, 'green');
+
+    
+        this.updateBoard();
+    }
+
     startGame() {
-        console.log('startgame')
+        console.log('startgame');
+        this.resetBoard();
         $('#start-modal').css('display', 'block');
 
         $('#start-btn').on('click', () => {
@@ -185,6 +244,7 @@ class Game {
             $(`#tile${i + 1} .property-name`).text(this.gameTiles[i].name);
             $(`#tile${i + 1} .property-cost`).text(this.gameTiles[i].cost);
         }
+        $('#fp-amount').text(this.freeParking);
     }
     //////////////////////
     //Modals
@@ -226,7 +286,7 @@ class Game {
                             $('#announcement').hide('slow');
                             this.nextRound();
                         });
-                    } else if(this.numOfHumans < this.players.length) {
+                    } else if(this.numOfHumans > this.players.length) {
                         this.resetPlayerSelect();
                     } else {
                         $('#player-select').css('display', 'none');
@@ -377,10 +437,12 @@ class Game {
     nextRound() {
         console.log(`nextround`);
         console.log(`----whosturn = ${this.whosTurn().name}`);
-        if(this.whosTurn().isHuman === false) {
+        this.winCheck(this.whosTurn());
+        if(this.whosTurn().isActive === false) {
+            this.rotatePlay(this.whosTurn());
+        } else if(this.whosTurn().isHuman === false) {
             this.compTurn(this.whosTurn());
-        } 
-        else {
+        } else {
             this.humanTurn(this.whosTurn());
         }
     }
@@ -394,6 +456,105 @@ class Game {
         $('.control-roll').on('click', () => {
             this.moveHuman(player);
         });
+        $('.control-properties').on('click', () => {
+            $('#player-properties').show('slow');
+            this.getOwnProperties(player);
+            $('#play-prop-close').on('click', () => {
+                $('#player-properties').hide('slow');
+            })
+        })
+        $('.control-menu').on('click', () => {
+            $('#menu-modal').show('slow');
+            $('#resume').on('click', () => {
+                $('#menu-modal').hide('slow');
+            });
+            $('#restart').on('click', () => {
+                $('#menu-modal').hide();
+                this.startGame();
+            });
+            $('#about').on('click', () => {
+                $('#about-modal').show('slow');
+                $('#about-close').on('click', () => {
+                    $('#about-modal').hide('slow');
+                })
+
+            })
+        })
+    }
+
+    getOwnProperties(player) {
+        for(let i = 0; i < player.properties.length; i++) {
+            let $famDiv = $('<div>').addClass('player-prop-item');
+            for(let j = 0; j < player.properties[i].length; j++) {
+                let $propDiv = $('<div>').addClass('owned-props').text(player.properties[i].owned[j].name).on('click', (event) => {
+                    this.matchProp($(event.currentTarget).text());
+                });
+                $famDiv.append($propDiv);
+            }
+            $('#player-prop-container').append($famDiv);
+        }
+    }
+
+    matchProp(propName) {
+        for(let i = 0; i < this.whosTurn().properties.length; i++) {
+            for(let j = 0; j < this.whosTurn().properties[i].owned.length; j++) {
+                if(this.whosTurn().properties[i].owned[j].name === propName) {
+                    this.displayYourProp(this.whosTurn().properties[i].owned[j]);
+                }
+            }
+        }
+    }
+
+    displayYourProp(property) {
+        $('#prop-box-name').empty().text(property.name);
+        $('#basic-rent').empty().text(property.rent);
+        $('#1func span').empty().text(`$${property.rentWFunc[0]}`);
+        $('#2func span').empty().text(`$${property.rentWFunc[1]}`);
+        $('#3func span').empty().text(`$${property.rentWFunc[2]}`);
+        $('#4func span').empty().text(`$${property.rentWFunc[3]}`);
+        $('#app-rent span').empty().text(`$${property.rentWApp}`);
+        $('#improve-cost span').empty().text(`$${property.funcCost}`);
+        $('#buy-prop').off('click').text('Improve');
+        $('#pass-prop').off('click').text('Close');
+        $('#prop-modal').show('slow');
+        
+        if(this.bankCheck(property.funcCost) === true) {
+            $('#buy-prop').on('click', () => {
+                if((this.allFuncBuiltCheck(property) === true) && (property.numOfApp === 0)) {
+                    this.whosTurn().bank -= property.funcCost;
+                    this.updatePlayers();
+                    property.numOfApp++;
+                    this.announce(`You built an application for ${property.name} rent`);
+                    $('#ann-close').on('click', () => {
+                        $('#announcement').hide('slow');
+                    });
+                } else if(this.allFuncBuiltCheck(property).numOfFunc < 4) {
+                    this.whosTurn().bank -= property.funcCost;
+                    this.updatePlayers();
+                    property.numOfFunc++;
+                    this.announce(`You wrote a function for ${property.name} for $${property.funcCost}`);
+                    $('#ann-close').on('click', () => {
+                        $('#announcement').hide('slow');
+                    });
+                } else {
+                    this.announce(`${property.name} has been fully developed!`);
+                    $('#ann-close').on('click', () => {
+                        $('#announcement').hide('slow');
+                    });
+                }
+            });
+        } else {
+            $('#buy-prop').on('click', () => {
+                this.announce(`Not enough money to improve this property`);
+                $('#ann-close').on('click', () => {
+                    $('#announcement').hide('slow');
+                })
+            })
+        };
+
+        $('#pass-prop').on('click', () => {
+            $('#prop-modal').hide('slow');
+        })
     }
 
     moveHuman(player) {
@@ -408,6 +569,33 @@ class Game {
 ///////////////////////////////////////////////////////////////////////////////
     compTurn(player) {
         console.log(`compturn ${player.name}`);
+        if(player.inJail === true) {
+            if(player.turnsInJail < 4) {
+                this.announce(`${player.name} is in Jail. Pay $50 or roll doubles to get out`);
+                $('#ann-close').on('click', () => {
+                    $('#announcement').hide('slow');
+                    let roll1 = this.rollDice(1);
+                    let roll2 = this.rollDice(1);
+                    if(roll1 === roll2) {
+                        player.turnsInJail = 0;
+                        player.position = 10;
+                        this.moveComp(player);
+                    }
+                });
+            } else {
+                this.announce(`${player.name} has exceeded roll attempts. Pay $50`);
+                $('#ann-close').on('click', () => {
+                    $('#announcement').hide('slow');
+                    if(player.bank >= 51) {
+                        player.bank -= 50;
+                        player.turnsInJail = 0;
+                        player.position = 10;
+                        this.updatePlayers();
+                        this.moveComp(player);
+                    }
+                })
+            }
+        }
         //check for properties
         console.log(this.getPropToImprove(player.properties));
         while(this.getPropToImprove(player.properties) !== 'none') {
@@ -427,7 +615,11 @@ class Game {
     }
 
     doublesCheck(player) {
-        if(player.currDie1 === player.currDie2) {
+        if(player.bank <= 0) {
+            player.isActive = false;
+            this.updatePlayers();
+            this.winCheck(player);
+        } else if(player.currDie1 === player.currDie2) {
             this.announce(`${player.name} rolled doubles. Roll again!`);
             if(player.isHuman === false) {
                 $('#ann-close').on('click', () => {
@@ -606,10 +798,16 @@ class Game {
     
 
     allFuncBuiltCheck(property) {
-        if(property.numOfFunc === 4) {
-            return true;
+        for(let i = 0; i < this.whosTurn().properties.length; i++) {
+            if(this.whosTurn().properties[i].id === property.familyNum) {
+                for(let j = 0; j < this.whosTurn().properties[i].owned.length; j++) {
+                    if(this.whosTurn().properties[i].owned[j].numOfFunc < 4) {
+                        return false
+                    }
+                } 
+                return true;
+            }
         }
-        return false;
     }
     appBuiltCheck(property) {
         if(property.numOfApp === 1) {
@@ -652,6 +850,8 @@ class Game {
         console.log(`---player.position = ${player.position}`);
         if(player.position > 40) {
             player.position -= 40;
+            player.bank += 200;
+            this.updatePlayers();
         }
         this.updateBoardPos(player);
     }
@@ -669,7 +869,7 @@ class Game {
         } else if(this.getPlayerBoardLocation(player).type === 'event') {
             this.landedOnEvent(player);
         } else if(this.getPlayerBoardLocation(player).type === 'utility') {
-            this.landedOnUtility(player);
+            this.landedOnProp(player);
         } else {
             this.landedOnCorner(player);
         }
@@ -686,9 +886,21 @@ class Game {
     //     }
     //     return false;
     // }
+    winCheck(player) {
+        let count = 0;
+        for(let i = 0; i < this.players.length; i++) {
+            if(this.players[i].isActive === false) {
+                count++;
+                if(count === 3) {
+                    this.endGame(player);
+                }
+            }
+        }
+    }
 
     landedOnProp(player) {
         if(player.isHuman === false) {
+            //if prop is for sale
             if((this.getPlayerBoardLocation(player).owner === 5) && (this.bankCheck(this.getPlayerBoardLocation(player).cost) === true)) {
                 console.log(`----${this.getPlayerBoardLocation(player).name} is for sale`)
                 this.buyProp(player, this.getPlayerBoardLocation(player));
@@ -697,10 +909,16 @@ class Game {
                     $('#announcement').hide('slow');
                     this.doublesCheck(player);
                 });
+                //if you own it
             } else if(this.getPlayerBoardLocation(player).owner === player.playerNum) {
                 this.doublesCheck(player);
+                //if someone else does
             } else {
-                this.chargeRent(player);
+                if(player.inJail === false) {
+                    this.chargeRent(player);
+                } else {
+                    this.doublesCheck(player);
+                }
             }
         } else {
             if(this.getPlayerBoardLocation(player).owner === 5) {
@@ -713,22 +931,65 @@ class Game {
         }
     }
 
+    displayPropModal(property) {
+        $('#prop-box-name').empty().text(property.name);
+        $('#basic-rent').empty().text(property.rent);
+        $('#1func span').empty().text(`$${property.rentWFunc[0]}`);
+        $('#2func span').empty().text(`$${property.rentWFunc[1]}`);
+        $('#3func span').empty().text(`$${property.rentWFunc[2]}`);
+        $('#4func span').empty().text(`$${property.rentWFunc[3]}`);
+        $('#app-rent span').empty().text(`$${property.rentWApp}`);
+        $('#improve-cost span').empty().text(`$${property.funcCost}`);
+        $('#buy-prop').text(`Buy $${property.cost}`);
+        $('#prop-modal').show('slow');
+        $('#buy-prop').off('click')
+        $('#buy-prop').on('click', () => {
+            if(this.bankCheck(property.cost) === true) {
+                $('#prop-modal').hide('slow');
+                this.buyProp(this.whosTurn(), property);
+                this.doublesCheck(this.whosTurn());
+            } else {
+                this.announce(`You cannot afford this property!`)
+                $('#ann-close').on('click', () => {
+                    $('#announcement').hide('slow');
+                    $('#prop-modal').hide('slow');
+                    this.doublesCheck(this.whosTurn());
+                })
+            }
+        });
+    }
+
     chargeRent(player) {
         player.bank -= this.calculateRent(this.getPlayerBoardLocation(player));
-        this.updatePlayers();
-        this.announce(`${this.getPlayerBoardLocation(player).name} is owned by ${this.players[this.getPlayerBoardLocation(player).playerNum - 1]}. You are charged $${this.calculateRent(this.getPlayerBoardLocation(player))}`);
-        if(player.isHuman === false) {
-            $('#ann-close').on('click', () => {
-                $('#announcement').hide('slow');
-                this.doublesCheck(player);
-            })
+        if(player.bank <= 0) {
+            player.isActive = false;
+            this.updatePlayers();
+            this.winCheck(player);
+        } else {
+            this.updatePlayers();
+            let currProp = this.getPlayerBoardLocation(player);
+            let currOwner = this.players[currProp.playerNum - 1].name;
+            this.announce(`${currProp.name} is owned by ${currOwner.name}. ${player.name} charged $${this.calculateRent(this.getPlayerBoardLocation(player))}`);
+            if(player.isHuman === false) {
+                $('#ann-close').on('click', () => {
+                    $('#announcement').hide('slow');
+                    this.doublesCheck(player);
+                });
+            }
         }
     }
 
     calculateRent(property) {
         if(property.type === 'property') {
             if((property.numOfFunc === 0) && (property.numOfApp === 0)) {
-                return property.rent;
+                for(let i = 0; i < this.players[property.owner - 1].properties.length; i++) {
+                    if(this.players[property.owner - 1].properties[i].id === property.familyNum) {
+                        if(this.players[property.owner - 1].properties[i].owned.length === property.familySize) {
+                            return property.rent * 2;
+                        }
+                    }
+                    return property.rent;
+                }
             } else if((property.numOfFunc > 0) && (property.numOfApp === 0)) {
                 return property.rentWFunc[property.numOfFunc - 1];
             } else if(property.numOfApp === 1) {
@@ -755,6 +1016,24 @@ class Game {
         }
     }
 
+    landedOnCorner(player) {
+        if(this.getPlayerBoardLocation(player).name === 'parking') {
+            player.bank += this.freeParking;
+            this.updatePlayers();
+            this.freeParking = 0;
+            this.updateBoard();
+            this.doublesCheck(player);
+        } else if(this.getPlayerBoardLocation(player).name === 'goToJail'){
+            player.inJail = true;
+            $('#jail-img').append($(`#token${player.playerNum - 1}`));
+        } else if(this.getPlayerBoardLocation(player).name === 'go') {
+            player.bank += 200;
+            this.updatePlayers();
+        } else {
+            this.doublesCheck(player);
+        }
+    }
+
     landedOnEvent(player) {
         if(this.getPlayerBoardLocation(player).name === 'Tax') {
             this.taxEvent(player);
@@ -763,16 +1042,21 @@ class Game {
         }
     }
 
+
     taxEvent(player) {
+        player.bank -= this.getPlayerBoardLocation(player).cost;
+        this.updatePlayers();
+        this.freeParking +=  this.getPlayerBoardLocation(player).cost;
+        this.updateBoard();
         if(player.isHuman === false) {
-            player.bank -= this.getPlayerBoardLocation(player).cost;
-            this.updatePlayers();
-            this.announce(`You have been taxed! Pay $${this.getPlayerBoardLocation(player).cost}`);
-            $('#ann-close').on('click', () => {
-                $('#announcement').hide('slow');
-                this.doublesCheck(player);
-            })
+            this.announce(`TAX! ${player.name} must pay $${this.getPlayerBoardLocation(player).cost}`);
+        } else {
+            this.announce(`TAX! You must pay $${this.getPlayerBoardLocation(player).cost}`);
         }
+        $('#ann-close').on('click', () => {
+            $('#announcement').hide('slow');
+            this.doublesCheck(player);
+        });
     }
     
     eventCheck(player) {
@@ -802,7 +1086,6 @@ class Game {
             $('#event-modal').hide('slow');
             this.doublesCheck(this.whosTurn());
         })
-        $('#event-close').off('click');
     }
 
     processEvent(cardDrawn) {
@@ -810,11 +1093,15 @@ class Game {
         if(cardDrawn.statAffected === 'bank') {
             if(cardDrawn.effect === 'positive') {
                 currPlayer.bank += cardDrawn.valOfEffect;
+                this.updatePlayers();
             } else {
                 currPlayer.bank -= cardDrawn.valOfEffect;
+                this.freeParking += cardDrawn.valOfEffect;
+                this.updatePlayers();
             }
         } else {
             currPlayer.position = cardDrawn.valOfEffect;
+            this.updateBoardPos(currPlayer);
         }
         this.updatePlayers();
     }
@@ -826,9 +1113,7 @@ class Game {
         if(this.propCheck(player) === true) {
             for(let i = 0; i < player.properties.length; i++) {
                 if(player.properties[i].id === property.familyNum) {
-                    console.log(`${player.name} already owns part of this family group`);
                     player.properties[i].owned.push(property);
-                    console.log(`------${player.properties.owned[player.properties.owned.length - 1].name} has been added to ${player.name}'s properties`);
                 } 
             }
         } else {
@@ -863,39 +1148,7 @@ class Game {
 $(() => {
     const currentGame = new Game();
     console.log(`currentGame.players.lenth = ${currentGame.players.length}`)
-//creating game tiles
-//go tile
-    currentGame.generateGameTiles('corner', 0, 'go');
-//Lisp
-    currentGame.generateGameTiles('property', 1, 'Lisp', 60, 2, 50, 50, 250, [10, 30, 90, 160], 1, 0, 2, 'gold', 'none');
-//Freelance 1
-    currentGame.generateGameTiles('event', 2, 'Freelance');
-//Perl
-    currentGame.generateGameTiles('property', 3, 'Perl', 60, 4, 50, 50, 450, [20, 60, 90, 180], 1, 1, 2, 'gold', 'none');
-//Income Tax'
-    currentGame.generateGameTiles('event', 4, 'Tax', 200);
-//MDN
-    currentGame.generateGameTiles('property', 5, 'MDN', 200, 25, 0, 0, 0, [25, 50, 100, 200], 0, 0, 4, 'none', 'none');
-//HTML
-    currentGame.generateGameTiles('property', 6, 'HTML', 100, 6, 50, 50, 550, [30, 90, 270, 400], 2, 0, 3, 'blue');
-//Craigslist 1
-    currentGame.generateGameTiles('event', 7, 'Craigslist');
-//CSS
-    currentGame.generateGameTiles('property', 8, 'CSS', 100, 6, 50, 50, 550, [30, 90, 270, 400], 2, 1, 3, 'blue');
-//JavaScript
-    currentGame.generateGameTiles('property', 9, 'JavaScript', 120, 8, 50, 50, 600, [40, 100, 300, 450], 2, 2, 3, 'blue')
-//Jail
-    currentGame.generateGameTiles('corner', 10, 'Jail')
-//JQuery
-    currentGame.generateGameTiles('property', 11, 'JQuery', 140, 10, 100, 100, 750, [50, 150, 450, 625], 3, 0, 3, 'green');
-//GitHub
-    currentGame.generateGameTiles('utility', 12, 'GitHub', 150, 0, 0, 0, 0, 0, 9, 0, 2);
-//Ember
-    currentGame.generateGameTiles('property', 13, 'Ember', 140, 10, 100, 100, 750, [50, 150, 450, 625], 3, 1, 3, 'green');
-//React
-    currentGame.generateGameTiles('property', 14, 'React', 160, 12, 100, 100, 900, [60, 180, 500, 700], 3, 2, 3, 'green');
 
-    currentGame.updateBoard();
 
     // $('#start-modal').css('display', 'block');
 

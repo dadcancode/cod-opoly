@@ -14,7 +14,11 @@
 <body>
     <div id="game-board">
         <div class="game-board-segment" id="gb-top">
-            <div class="corner-seg" id="21">FREE PARKING</div>
+            <div class="corner-seg" id="21">
+                <div id="fp-text">FREE PARKING</div>
+                <div id="fp-amount"></div>
+                <div id="fp-token-cont"></div>
+            </div>
             <div class="reg-seg property" id="22">
                 <div class="color-bar"></div>
                 <div class="property-name"></div>
@@ -64,7 +68,11 @@
                 <div class="prop-sym token-cont"></div>
                 <div class="property-cost"></div>
             </div>
-            <div class="corner-seg" id="31">GO TO JAIL</div>
+            <div class="corner-seg" id="31">
+                <div id="goToJail-text">GO TO JAIL</div>
+                <div id="goToJail-img"></div>
+                <div class="token-cont"></div>
+            </div>
         </div>
         <div class="game-board-segment" id="gb-middle">
             <div class="gb-side-panel" id="right-panel">
@@ -284,7 +292,7 @@
     <div class="control-panel">
         <div class="control-item control-roll">ROLL</div>
         <div class="control-item control-properties">PROPERTIES</div>
-        <div class="control-item contorl-menu">MENU</div>
+        <div class="control-item control-menu">MENU</div>
     </div>
 
     <!-- /////Modals/////// -->
@@ -297,7 +305,7 @@
                 <h1>Cod-opoly</h1>
             </div>
             <div id="start-modal-about">
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus esse, porro provident in ab minus numquam accusamus impedit, cupiditate rerum, blanditiis non at qui cumque soluta. Voluptate temporibus facere omnis.</p>
+                <p>Your chance to own the world's most popular programming languages!</p>
             </div>
             <div id="start-modal-numOfPlayers">
                 <input type="number" id="numOfPlayers" value="1"/>
@@ -329,9 +337,41 @@
     </div>
 
     <!-- Prop Modal -->
-    <!-- <div class="modal" id="prop-modal">
-        <div></div>
-    </div> -->
+    <div class="modal" id="prop-modal">
+        <div id="prop-box">
+            <div class="prop-box-item" id="prop-info-box">
+                <div id="prop-info">
+                    <div id="prop-box-name"></div>
+                    <div id="prop-rent-info">
+                        <div class="prop-rent-item" id="basic-rent">RENT <span></span></div>
+                        <div class="prop-rent-item" id="func-rent-box">
+                            <div class="func-rent-item" id="1func">With 1 Function <span></span></div>
+                            <div class="func-rent-item" id="2func">With 2 Functions <span></span></div>
+                            <div class="func-rent-item" id="3func">With 3 Functions <span></span></div>
+                            <div class="func-rent-item" id="4func">With 4 Functions <span></span></div>
+                        </div>
+                        <div class="prop-rent-item" id="app-rent">With APP <span></span></div>
+                        <div class="prop-rent-item" id="improve-cost">Improvements <span></span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="prop-box-item" id="prop-btn-box">
+                <div class="prop-btn" id="buy-prop">Buy</div>
+                <div class="prop-btn" id="pass-prop">Pass</div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <!-- player properties modal -->
+    <div class="modal" id="player-properties">
+        <div id="player-prop-box">
+            <div id="player-prop-cont">
+            </div>
+            <div id="play-prop-close">X</div>
+        </div>
+    </div>
 
     <!-- Event Modal -->
     <div class="modal" id="event-modal">
@@ -339,6 +379,117 @@
             <div id="event-title"></div>
             <div id="event-text"></div>
             <div id="event-close">X</div>
+        </div>
+    </div>
+
+    <!-- Menu Modal -->
+    <div class="modal" id="menu-modal">
+        <div id="menu-box">
+            <div id="resume">Resume</div>
+            <div id="restart">Restart</div>
+            <div id="about">About</div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div class="modal" id="about-modal">
+        <div id="about-box">
+            <div id="about-text">
+                    <p>OBJECT… The object of the game is to become the wealthiest player
+                    through buying, renting and selling property</p>
+                    <p>THE PLAY… Starting with the Banker, each player in turn throws the
+                    dice. The player with the highest total starts the play: Place your token
+                    on the corner marked “GO,” throw the dice and move your token in
+                    the direction of the arrow the number of spaces indicated by the dice.
+                    After you have completed your play, the turn passes to the left. The
+                    tokens remain on the spaces occupied and proceed from that point on
+                    the player’s next turn. Two or more tokens may rest on the same space
+                    at the same time.
+                    According to the space your token reaches, you may be entitled to
+                    buy real estate or other properties — or obliged to pay rent, pay taxes,
+                    draw a Chance or Community Chest card, “Go to Jail ® ,” etc.
+                    If you throw doubles, you move your token as usual, the sum of the
+                    two dice, and are subject to any privileges or penalties pertaining to
+                    the space on which you land. Retaining the dice, throw again and
+                    move your token as before. If you throw doubles three times in
+                    succession, move your token immediately to the space marked “In
+                    Jail”(see JAIL).
+                    </p> 
+                    <p>“GO”… Each time a player’s token lands on or passes over GO,
+                    whether by throwing the dice or drawing a card, the Banker pays
+                    him/her a $200 salary.
+                    The $200 is paid only once each time around the board. However, if
+                    a player passing GO on the throw of the dice lands 2 spaces beyond it
+                    on Community Chest, or 7 spaces beyond it on Chance, and draws the
+                    “Advance to GO” card, he/she collects $200 for passing GO the first
+                    time and another $200 for reaching it the second time by instructions
+                    on the card.</p>  
+                    <p>BUYING PROPERTY… Whenever you land on an unowned property
+                    you may buy that property from the Bank at its printed price. You
+                    receive the Title Deed card showing ownership; place it face up in
+                    front of you.
+                    If you do not wish to buy the property, the Banker sells it at auction
+                    to the highest bidder. The buyer pays the Bank the amount of the bid
+                    in cash and receives the Title Deed card for that property. Any player,
+                    including the one who declined the option to buy it at the printed
+                    price, may bid. Bidding may start at any price</p>
+                    <p>PAYING RENT… When you land on property owned by another
+                    player, the owner collects rent from you in accordance with the list
+                    printed on its Title Deed card.
+                    If the property is mortgaged, no rent can be collected. When a
+                    property is mortgaged, its Title Deed card is placed face down in front
+                    of the owner.
+                    It is an advantage to hold all the Title Deed cards in a color-group
+                    (e.g., Boardwalk and Park Place; or Connecticut, Vermont and Oriental
+                    Avenues) because the owner may then charge double rent for
+                    unimproved properties in that color-group. This rule applies to
+                    unmortgaged properties even if another property in that color-group
+                    is mortgaged.
+                    It is even more advantageous to have houses or hotels on properties
+                    because rents are much higher than for unimproved properties.
+                    The owner may not collect the rent if he/she fails to ask for it before
+                    the second player following throws the dice.
+                    </p>
+                    <p>“CHANCE” AND “COMMUNITY CHEST”… When you land on
+                    either of these spaces, take the top card from the deck indicated,
+                    follow the instructions and return the card face down to the bottom of
+                    the deck.
+                    The “Get Out of Jail Free” card is held until used and then returned
+                    to the bottom of the deck. If the player who draws it does not wish to
+                    use it, he/she may sell it, at any time, to another player at a price
+                    agreeable to both.</p>
+                    <p>“INCOME TAX”… If you land here you have two options: You may
+                    estimate your tax at $200 and pay the Bank, or you may pay 10% of
+                    your total worth to the Bank. Your total worth is all your cash on
+                    hand, printed prices of mortgaged and unmortgaged properties and
+                    cost price of all buildings you own.
+                    You must decide which option you will take before you add up
+                    your total worth</p>
+                    <p>“JAIL”… You land in Jail when… (1) your token lands on the space
+                    marked “Go to Jail”; (2) you draw a card marked “Go to Jail”; or
+                    (3) you throw doubles three times in succession.
+                    When you are sent to Jail you cannot collect your $200 salary in that
+                    move since, regardless of where your token is on the board, you must
+                    move it directly into Jail. Yours turn ends when you are sent to Jail.
+                    If you are not “sent” to Jail but in the ordinary course of play land
+                    on that space, you are “Just Visiting,” you incur no penalty, and you
+                    move ahead in the usual manner on your next turn.
+                    You get out of Jail by… (1) throwing doubles on any of your next
+                    three turns; if you succeed in doing this you immediately move
+                    forward the number of spaces shown by your doubles throw; even
+                    though you had thrown doubles, you do not take another turn;
+                    (2) using the “Get Out of Jail Free” card if you have it; (3) purchasing
+                    the “Get Out of Jail Free” card from another player and playing it;
+                    (4) paying a fine of $50 before you roll the dice on either of your next
+                    two turns.
+                    If you do not throw doubles by your third turn, you must pay the
+                    $50 fine. You then get out of Jail and immediately move forward the
+                    number of spaces shown by your throw.
+                    Even though you are in Jail, you may buy and sell property, buy
+                    and sell houses and hotels and collect rents.
+                    </p>
+            </div>
+            <div id="about-close">X</div>
         </div>
     </div>
 </body>
