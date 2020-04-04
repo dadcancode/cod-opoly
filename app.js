@@ -380,14 +380,32 @@ class Game {
         if(this.whosTurn().isHuman === false) {
             this.compTurn(this.whosTurn());
         } 
-        // else {
-        //     this.humanTurn(this.whosTurn());
-        // }
+        else {
+            this.humanTurn(this.whosTurn());
+        }
+    }
+    //////////////////////////////////////////////////////////////
+    humanTurn(player) {
+        this.setUpControlPanel(player);
     }
 
+    setUpControlPanel(player) {
+        $('.control-item').off('click');
+        $('.control-roll').on('click', () => {
+            this.moveHuman(player);
+        });
+    }
 
-
-
+    moveHuman(player) {
+        this.rollTurn(player);
+        this.announce(`You rolled ${player.currRoll}`);
+        $('#ann-close').on('click', () => {
+            $('#announcement').hide('slow');
+            this.moveToken(player);
+            this.positionEval(player);
+        })
+    }
+///////////////////////////////////////////////////////////////////////////////
     compTurn(player) {
         console.log(`compturn ${player.name}`);
         //check for properties
@@ -411,11 +429,17 @@ class Game {
     doublesCheck(player) {
         if(player.currDie1 === player.currDie2) {
             this.announce(`${player.name} rolled doubles. Roll again!`);
-            $('#ann-close').on('click', () => {
-                $('#announcement').hide('slow');
-                this.moveComp(player);
-                
-            });
+            if(player.isHuman === false) {
+                $('#ann-close').on('click', () => {
+                    $('#announcement').hide('slow');
+                    this.moveComp(player);                   
+                });
+            } else {
+                $('#ann-close').on('click', () => {
+                    $('#announcement').hide('slow');
+                    this.setUpControlPanel(player);
+                })
+            }
         }
         this.rotatePlay(player);
     }
@@ -644,6 +668,10 @@ class Game {
             this.landedOnProp(player);
         } else if(this.getPlayerBoardLocation(player).type === 'event') {
             this.landedOnEvent(player);
+        } else if(this.getPlayerBoardLocation(player).type === 'utility') {
+            this.landedOnUtility(player);
+        } else {
+            this.landedOnCorner(player);
         }
     }
 
@@ -660,11 +688,7 @@ class Game {
     // }
 
     landedOnProp(player) {
-        console.log(`landedonprop`)
-        console.log(`---is player human? ${player.isHuman}`)
         if(player.isHuman === false) {
-            console.log(`player is computer`)
-            console.log(`----owner of property landed on is ${this.getPlayerBoardLocation(player).owner}`);
             if((this.getPlayerBoardLocation(player).owner === 5) && (this.bankCheck(this.getPlayerBoardLocation(player).cost) === true)) {
                 console.log(`----${this.getPlayerBoardLocation(player).name} is for sale`)
                 this.buyProp(player, this.getPlayerBoardLocation(player));
@@ -672,8 +696,61 @@ class Game {
                 $('#ann-close').on('click', () => {
                     $('#announcement').hide('slow');
                     this.doublesCheck(player);
-                })
-                // $('#ann-close').off('click');
+                });
+            } else if(this.getPlayerBoardLocation(player).owner === player.playerNum) {
+                this.doublesCheck(player);
+            } else {
+                this.chargeRent(player);
+            }
+        } else {
+            if(this.getPlayerBoardLocation(player).owner === 5) {
+                this.displayPropModal(this.getPlayerBoardLocation(player));
+            } else if(this.getPlayerBoardLocation(player).owner === player.playerNum) {
+                this.doublesCheck(player);
+            } else {
+                this.chargeRent(player);
+            }
+        }
+    }
+
+    chargeRent(player) {
+        player.bank -= this.calculateRent(this.getPlayerBoardLocation(player));
+        this.updatePlayers();
+        this.announce(`${this.getPlayerBoardLocation(player).name} is owned by ${this.players[this.getPlayerBoardLocation(player).playerNum - 1]}. You are charged $${this.calculateRent(this.getPlayerBoardLocation(player))}`);
+        if(player.isHuman === false) {
+            $('#ann-close').on('click', () => {
+                $('#announcement').hide('slow');
+                this.doublesCheck(player);
+            })
+        }
+    }
+
+    calculateRent(property) {
+        if(property.type === 'property') {
+            if((property.numOfFunc === 0) && (property.numOfApp === 0)) {
+                return property.rent;
+            } else if((property.numOfFunc > 0) && (property.numOfApp === 0)) {
+                return property.rentWFunc[property.numOfFunc - 1];
+            } else if(property.numOfApp === 1) {
+                return property.rentWApp;
+            }
+        } else if(property.familyNum === 0) {
+            let count = 0;
+            for(let i = 0; i < this.players[property.owner - 1].properties.length; i++) {
+                if(this.players[property.owner - 1].properties[i].id === 0) {
+                    count = this.players[property.owner - 1].properties[i].owner.length;
+                    return property.rentWFunc[count - 1];
+                }
+            }
+        } else if(property.familyNum === 9) {
+            for(let i = 0; i < this.players[property.owner - 1].properties.length; i++) {
+                if(this.players[property.owner - 1].properties[i].id === 9) {
+                    if(this.players[property.owner - 1].properties[i].owner.length = 1) {
+                        return this.whosTurn().currRoll * 4;
+                    } else {
+                        return this.whosTurn().currRoll * 7;
+                    }
+                }
             }
         }
     }
@@ -683,6 +760,18 @@ class Game {
             this.taxEvent(player);
         } else {
             this.eventCheck(player);
+        }
+    }
+
+    taxEvent(player) {
+        if(player.isHuman === false) {
+            player.bank -= this.getPlayerBoardLocation(player).cost;
+            this.updatePlayers();
+            this.announce(`You have been taxed! Pay $${this.getPlayerBoardLocation(player).cost}`);
+            $('#ann-close').on('click', () => {
+                $('#announcement').hide('slow');
+                this.doublesCheck(player);
+            })
         }
     }
     
@@ -749,7 +838,7 @@ class Game {
             console.log(`player.properties[0].owned.length = ${player.properties[0].owned.length}`);
             console.log(`player.properties[0].owned[0].name = ${player.properties[0].owned[0].name}`);
         }
-        property.owner = player.name;
+        property.owner = player.playerNum;
         player.bank -= property.cost;
         this.updatePlayers();
         // this.sortProp(player.properties.owned);
