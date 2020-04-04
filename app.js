@@ -49,25 +49,25 @@ class Game {
             {
                 symbol: '{}',
                 isSelected: false,
-                backgroundColor: 'yellow',
-                color: 'darkblue'
+                backgroundColor: 'linear-gradient( 171.8deg,  rgba(5,111,146,1) 13.5%, rgba(6,57,84,1) 78.6% )',
+                color: 'rgba(251,212,0,1)'
             },
             {
                 symbol: ';',
                 isSelected: false,
-                backgroundColor: 'red',
+                backgroundColor: 'radial-gradient( circle farthest-corner at 81.9% 53.5%,  rgba(173,53,53,1) 16.3%, rgba(240,60,60,1) 100.2% )',
                 color: 'green'
             },
             {
                 symbol: "#",
                 isSelected: false,
-                backgroundColor: 'blue',
-                color: 'coral'
+                backgroundColor: 'linear-gradient( 109.6deg,  rgba(255,194,48,1) 11.2%, rgba(255,124,0,1) 100.2% )',
+                color: 'purple'
             },
             {
                 symbol: "$",
                 isSelected: false,
-                backgroundColor: 'darkgreen',
+                backgroundColor: 'radial-gradient( circle farthest-corner at 10% 20%,  rgba(114,187,95,1) 0%, rgba(35,149,112,1) 99.1% )',
                 color: 'orange'
             }
         ];
@@ -107,6 +107,7 @@ class Game {
 
         this.numOfHumans = numOfHumans;
         this.freeParking = 0;
+        this.round = 0;
     }
 //Game Setup
     generateHuman(event) {
@@ -146,11 +147,11 @@ class Game {
             // console.log(this.players[i].sym);
             $('.player-item').eq(i).attr('id', `${this.players[i].name}`);
             $('.player-icon-cont').eq(i).text(this.players[i].sym.symbol).css({
-                'background-color' : this.players[i].sym.backgroundColor,
+                'background-image' : this.players[i].sym.backgroundColor,
                 'color' : this.players[i].sym.color
             });
             $('.player-id-name span').eq(i).text(this.players[i].name);
-            $('.player-money span').eq(i).text(this.players[i].bank);
+            $('.player-money span').eq(i).text(`$${this.players[i].bank}`);
         }
     }
     humanPlayersCreated() {
@@ -161,6 +162,7 @@ class Game {
     }
 
     resetBoard() {
+        console.log('reset')
         // reset symbols
         for(let i = 0; i < this.syms.length; i++) {
             this.syms[i].isSelected = false;
@@ -291,7 +293,8 @@ class Game {
             console.log(`updating tile ${i}`)
             console.log(this.gameTiles[i].name)
             $(`#tile${i + 1} .property-name`).text(this.gameTiles[i].name);
-            $(`#tile${i + 1} .property-cost`).text(this.gameTiles[i].cost);
+            $(`#tile${i + 1} .property-cost`).text(`$${this.gameTiles[i].cost}`);
+            $(`#tile${i + 1} .color-bar`).css('background-color', this.gameTiles[i].familyColor);
         }
         $('#fp-amount').text(this.freeParking);
     }
@@ -467,12 +470,12 @@ class Game {
     //////////////////////////
     endTurn(player) {
         player.isTurn = false;
-        $(`.${player.playerNum}`).css(`background-color`, 'white');
+        $(`.${player.playerNum}`).css(`background-image`, 'none');
     }
     setTurn(player) {
         player.isTurn = true;
         //change background of curr player div
-        $(`.${player.playerNum}`).css('background-color', player.sym.backgroundColor);
+        $(`.${player.playerNum}`).css('background-image', player.sym.backgroundColor);
     }
 
     whosTurn() {
@@ -484,7 +487,8 @@ class Game {
     }
     
     nextRound() {
-        console.log(`nextround`);
+        this.round += 1;
+        console.log(`******************************nextround #${this.round}`);
         console.log(`----whosturn = ${this.whosTurn().name}`);
         this.winCheck(this.whosTurn());
         if(this.whosTurn().isActive === false) {
@@ -506,8 +510,8 @@ class Game {
             this.moveHuman(player);
         });
         $('.control-properties').on('click', () => {
-            $('#player-properties').show('slow');
             this.getOwnProperties(player);
+            $('#player-properties').show('slow');
             $('#play-prop-close').on('click', () => {
                 $('#player-properties').hide('slow');
             })
@@ -534,13 +538,14 @@ class Game {
     getOwnProperties(player) {
         for(let i = 0; i < player.properties.length; i++) {
             let $famDiv = $('<div>').addClass('player-prop-item');
-            for(let j = 0; j < player.properties[i].length; j++) {
-                let $propDiv = $('<div>').addClass('owned-props').text(player.properties[i].owned[j].name).on('click', (event) => {
+            console.log(player.properties[i].owned.name);
+            for(let j = 0; j < player.properties[i].owned.length; j++) {
+                let $propDiv = $('<div>').addClass('owned-props').text(player.properties[i].owned[j].name).css('background-color', player.properties[i].owned[j].familyColor).on('click', (event) => {
                     this.matchProp($(event.currentTarget).text());
                 });
-                $famDiv.append($propDiv);
+                $($famDiv).append($propDiv);
+                $('#player-prop-cont').append($famDiv);
             }
-            $('#player-prop-container').append($famDiv);
         }
     }
 
@@ -664,7 +669,9 @@ class Game {
     }
 
     doublesCheck(player) {
+        console.log(`doublesCheck`)
         if(player.bank <= 0) {
+            console.log(`players bank evaluated as 0 ${player.name}`)
             player.isActive = false;
             this.updatePlayers();
             this.winCheck(player);
@@ -880,7 +887,7 @@ class Game {
         console.log('generatetokens')
         for(let i = 0; i < this.players.length; i++) {
             let $token = $('<div>').addClass('player-token').attr('id', `token${i}`).text(this.players[i].sym.symbol).css({
-                'background-color' : this.players[i].sym.backgroundColor,
+                'background-image' : this.players[i].sym.backgroundColor,
                 'color' : this.players[i].sym.color
             });
             $('#tile1 .token-cont').append($token);
@@ -936,6 +943,7 @@ class Game {
     //     return false;
     // }
     winCheck(player) {
+        console.log('wincheck')
         let count = 0;
         for(let i = 0; i < this.players.length; i++) {
             if(this.players[i].isActive === false) {
@@ -948,6 +956,7 @@ class Game {
     }
 
     landedOnProp(player) {
+        console.log(`${player.name} landed ${this.getPlayerBoardLocation(player).name}`);
         if(player.isHuman === false) {
             //if prop is for sale
             if((this.getPlayerBoardLocation(player).owner === 5) && (this.bankCheck(this.getPlayerBoardLocation(player).cost) === true)) {
@@ -982,7 +991,7 @@ class Game {
 
     displayPropModal(property) {
         $('#prop-box-name').empty().text(property.name);
-        $('#basic-rent').empty().text(property.rent);
+        $('#basic-rent').empty().text(`RENT  $${property.rent}`);
         $('#1func span').empty().text(`$${property.rentWFunc[0]}`);
         $('#2func span').empty().text(`$${property.rentWFunc[1]}`);
         $('#3func span').empty().text(`$${property.rentWFunc[2]}`);
@@ -1010,15 +1019,18 @@ class Game {
 
     chargeRent(player) {
         player.bank -= this.calculateRent(this.getPlayerBoardLocation(player));
+        this.players[this.getPlayerBoardLocation(player).owner - 1].bank += this.calculateRent(this.getPlayerBoardLocation(player));
         if(player.bank <= 0) {
+            console.log(`${player.name}'s bank evaluated as 0`)
             player.isActive = false;
             this.updatePlayers();
             this.winCheck(player);
         } else {
             this.updatePlayers();
             let currProp = this.getPlayerBoardLocation(player);
-            let currOwner = this.players[currProp.playerNum - 1].name;
-            this.announce(`${currProp.name} is owned by ${currOwner.name}. ${player.name} charged $${this.calculateRent(this.getPlayerBoardLocation(player))}`);
+            console.log(currProp);
+            let currOwner = this.players[currProp.owner - 1].name;
+            this.announce(`${currProp.name} is owned by ${currOwner}. ${player.name} charged $${this.calculateRent(this.getPlayerBoardLocation(player))}`);
             if(player.isHuman === false) {
                 $('#ann-close').on('click', () => {
                     $('#announcement').hide('slow');
@@ -1084,6 +1096,7 @@ class Game {
     }
 
     landedOnEvent(player) {
+        console.log(`${player.name} landed on ${this.getPlayerBoardLocation(player).name}`);
         if(this.getPlayerBoardLocation(player).name === 'Tax') {
             this.taxEvent(player);
         } else {
@@ -1109,6 +1122,7 @@ class Game {
     }
     
     eventCheck(player) {
+        console.log(`${player.name} landed on ${this.getPlayerBoardLocation(player).name}`);
         if(this.getPlayerBoardLocation(player).name === 'Freelance') {
             this.drawFreelance();
         } else if(this.getPlayerBoardLocation(player).name === 'Craigslist') {
@@ -1117,16 +1131,19 @@ class Game {
     }
 
     drawFreelance() {
+        console.log('drawfreelance')
         let cardDrawn = this.freelanceCards[Math.floor(Math.random() * this.freelanceCards.length)];
         this.displayEventCard(cardDrawn);
     }
 
     drawCraigslist() {
+        console.log('drawcraiglist')
         let cardDrawn = this.craigslistCards[Math.floor(Math.random() * this.craigslistCards.length)];
         this.displayEventCard(cardDrawn);
     }
 
     displayEventCard(cardDrawn) {
+        console.log('displayeventcard')
         this.processEvent(cardDrawn);
         $('#event-title').text(cardDrawn.name);
         $('#event-text').text(cardDrawn.text);
@@ -1138,6 +1155,7 @@ class Game {
     }
 
     processEvent(cardDrawn) {
+        console.log('processevent')
         let currPlayer = this.whosTurn();
         if(cardDrawn.statAffected === 'bank') {
             if(cardDrawn.effect === 'positive') {
@@ -1160,6 +1178,7 @@ class Game {
         console.log('buy prop')
         //check to see if any other family members are owned
         if(this.propCheck(player) === true) {
+            console.log('propcheck was true')
             for(let i = 0; i < player.properties.length; i++) {
                 if(player.properties[i].id === property.familyNum) {
                     player.properties[i].owned.push(property);
@@ -1167,6 +1186,7 @@ class Game {
             }
         } else {
             let newPropObj = {id: property.familyNum, size: property.familySize, owned:[property]}
+            console.log(newPropObj.owned[0].name)
             player.properties.push(newPropObj);
             console.log(`player.properties[0].id = ${player.properties[0].id}`);
             console.log(`player.properties[0].owned.length = ${player.properties[0].owned.length}`);
