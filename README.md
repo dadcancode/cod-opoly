@@ -19,3 +19,5 @@ This project was truly an exercise in planning and managing expectations.  I nev
 Testing late game scenarios.  I tried forcing certain scenarios but it broke the game quite often so I started just playing games but still havent been able to complete one.  I actually dont think I have ever finished a game of monopoly.
 
 ## Check the game out here
+
+https://dadcancode.github.io/cod-opoly/
