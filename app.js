@@ -183,14 +183,14 @@ class Game {
         this.generateGameTiles('corner', 0, 'go');
     //Lisp
         this.generateGameTiles('property', 1, 'Lisp', 60, 2, 50, 50, 250, [10, 30, 90, 160], 1, 0, 2, 'gold', 'none');
-    //Freelance 1
-        this.generateGameTiles('event', 2, 'Freelance');
+    //Freelancer 1
+        this.generateGameTiles('event', 2, 'Freelancer');
     //Perl
         this.generateGameTiles('property', 3, 'Perl', 60, 4, 50, 50, 450, [20, 60, 90, 180], 1, 1, 2, 'gold', 'none');
-    //Income Tax'
+    //Tax
         this.generateGameTiles('event', 4, 'Tax', 200);
     //MDN
-        this.generateGameTiles('property', 5, 'MDN', 200, 25, 0, 0, 0, [25, 50, 100, 200], 0, 0, 4, 'none', 'none');
+        this.generateGameTiles('property', 5, 'MDN', 200, 25, 0, 0, 0, [25, 50, 100, 200], 0, 0, 4, 'none');
     //HTML
         this.generateGameTiles('property', 6, 'HTML', 100, 6, 50, 50, 550, [30, 90, 270, 400], 2, 0, 3, 'blue');
     //Craigslist 1
@@ -205,12 +205,61 @@ class Game {
         this.generateGameTiles('property', 11, 'JQuery', 140, 10, 100, 100, 750, [50, 150, 450, 625], 3, 0, 3, 'green');
     //GitHub
         this.generateGameTiles('utility', 12, 'GitHub', 150, 0, 0, 0, 0, 0, 9, 0, 2);
-    //Ember
-        this.generateGameTiles('property', 13, 'Ember', 140, 10, 100, 100, 750, [50, 150, 450, 625], 3, 1, 3, 'green');
+    //Node.js
+        this.generateGameTiles('property', 13, 'Node.js', 140, 10, 100, 100, 750, [50, 150, 450, 625], 3, 1, 3, 'green');
     //React
         this.generateGameTiles('property', 14, 'React', 160, 12, 100, 100, 900, [60, 180, 500, 700], 3, 2, 3, 'green');
+    //Stackoverflow
+        this.generateGameTiles('propert', 15, 'stackoverflow', 200, 25, 0, 0, 0, [25, 50, 100, 200], 0, 1, 4, 'none');
+    //Bootstrap
+        this.generateGameTiles('property', 16, 'Bootstrap', 180, 14, 100, 100, 950, [70, 200, 550, 750], 4, 0, 3, 'yellow');
+    //Freelancer 2
+        this.generateGameTiles('event', 17, 'Freelancer');
+    //Angular
+        this.generateGameTiles('property', 18, 'Angular', 180, 14, 100, 100, 950, [70, 200, 550, 750], 4, 1, 3, 'yellow');
+    //Vue.js
+        this.generateGameTiles('property', 19, 'Vue.js', 200, 16, 100, 100, 1000, [80, 220, 600, 800], 4, 2, 3, 'yellow');
+    //Free Parking
+        this.generateGameTiles('corner', 20, 'parking');
+    //Rails
+        this.generateGameTiles('property', 21, 'Rails', 220, 18, 150, 150, 1050, [90, 250, 700, 875], 5, 0, 3, 'red');
+    //Craigslist 2
+        this.generateGameTiles('event', 22, 'Craigslist');
+    //Django
+        this.generateGameTiles('property', 23, 'Django', 220, 18, 150, 150, 1050, [90, 250, 700, 875], 5, 1, 3, 'red');
+    //Express
+        this.generateGameTiles('property', 24, 'Express', 240, 20, 150, 150, 1100, [100, 300, 750, 925], 5, 2, 3, 'red');
+    //W3 Schools
+        this.generateGameTiles('property', 25, 'W3 Schools', 200, 25, 0, 0, 0, [25, 50, 100, 200], 0, 2, 4, 'none');
+    //Oracle
+        this.generateGameTiles('property', 26, 'Oracle', 260, 22, 150, 150, 1150, [110, 330, 800, 975], 6, 0, 3, 'purple');
+    //MySQL
+        this.generateGameTiles('property', 27, 'MySQL', 260, 22, 150, 150, 1150, [110, 330, 800, 975], 6, 1, 3, 'purple');
+    //BitBucket
+        this.generateGameTiles('utility', 28, 'BitBucket', 150, 0, 0, 0, 0, 0, 9, 1, 2);
+    //MS Access
+        this.generateGameTiles('property', 29, 'MS Access', 280, 24, 150, 150, 1200, [120, 360, 850, 1025], 6, 2, 3, 'purple');
+    //Jail
+        this.generateGameTiles('corner', 30, 'goToJail');
+    //C
+        this.generateGameTiles('property', 31, 'C', 300, 26, 200, 200, 1275, [130, 390, 900, 1100], 7, 0, 3, 'gray');
+    //C++
+        this.generateGameTiles('property', 32, 'C++', 300, 26, 200, 200, 1275, [130, 390, 900, 1100], 7, 1, 3, 'gray');
+    //Freelancer 3
+        this.generateGameTiles('event', 33, 'Freelancer');
+    //C#
+        this.generateGameTiles('property', 34, 'C#', 320, 28, 200, 200, 1400, [150, 450, 1000, 1200], 7, 2, 3, 'gray');
+    //Google Search
+        this.generateGameTiles('property', 35, 'Google Search', 200, 25, 0, 0, 0, [25, 50, 100, 200], 0, 2, 4, 'none');
+    //Craigslist 3
+        this.generateGameTiles('event', 36, 'Craigslist');
+    //Ruby
+        this.generateGameTiles('property', 37, 'Ruby', 350, 35, 200, 200, 1500, [175, 500, 1100, 1300], 8, 0, 2, 'teal');
+    //Tax 2
+        this.generateGameTiles('event', 38, 'Tax', 100);
+    //Python
+        this.generateGameTiles('property', 39, 'Python', 400, 50, 200, 200, 2000, [200, 600, 1400, 1700], 8, 1, 2, 'teal');
 
-    
         this.updateBoard();
     }
 
@@ -848,8 +897,8 @@ class Game {
         console.log('movetoken');
         player.position += player.currRoll;
         console.log(`---player.position = ${player.position}`);
-        if(player.position > 40) {
-            player.position -= 40;
+        if(player.position > 39) {
+            player.position -= 39;
             player.bank += 200;
             this.updatePlayers();
         }
