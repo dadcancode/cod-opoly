@@ -1187,8 +1187,10 @@ class Game {
                     player.properties[i].owned.push(property);
                 } else {
                     let newPropObj = {id: property.familyNum, size: property.familySize, owned:[property]}
+                    console.log(`newpropobj to push: {id: ${newPropObj.id}, size: ${newPropObj.size}, owned[0]: ${newPropObj.owned[0].name}}`);
                 // console.log(newPropObj.owned[0].name)
-                player.properties.push(newPropObj);
+                    player.properties.push(newPropObj);
+                    console.log(`number of props added ${player.properties[player.properties.length - 1].owned.length}`);
                 // console.log(`player.properties[0].id = ${player.properties[0].id}`);
                 // console.log(`player.properties[0].owned.length = ${player.properties[0].owned.length}`);
                 // console.log(`player.properties[0].owned[0].name = ${player.properties[0].owned[0].name}`);
