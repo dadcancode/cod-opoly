@@ -8,6 +8,7 @@
 body {
     display: flex;
     background-image: radial-gradient( circle 848px at 10% 20%,  rgba(174,231,165,0.90) 0%, rgba(181,205,154,1) 90% );
+    justify-content: center;
 }
 
 #game-board {
@@ -21,6 +22,7 @@ body {
 .control-panel {
     flex: 1;
     height: 100vh;
+    max-width: 25vw;
     display: flex;
     flex-direction: column;
     border: 1px solid black;
@@ -57,7 +59,7 @@ body {
     border-bottom: 1px solid black;
 }
 
-#gb-bottom, #tile12, #tile13, #tile14, #tile15, #tile16, #tile17, #tile18, #tile19, #tile39, #tile38, #tile37, #tile36, #tile35, #tile34, #tile33 {
+#gb-bottom, #tile12, #tile13, #tile14, #tile15, #tile16, #tile17, #tile18, #tile19, #tile39, #tile38, #tile37, #tile36, #tile35, #tile34, #tile33, #tile40 {
     border-top: 1px solid black;
 }
 
